@@ -1,4 +1,0 @@
--- import statments
-
-main :: IO ()
-main = undefined -- runs the program
