@@ -23,11 +23,11 @@ import Graphics.Gloss.Interface.Pure.Game
 --Clear filled rows, generating score
 attemptClear :: Environment -> Environment
 attemptClear thisGame = 
-  let thisWell = tileScape thisGame
+  let lainTiles = tileScape thisGame
       --Find full rows
       fullRows = [(snd . tileLocale . head) row
                     | row <- groupBy ((==) 'on' (snd . tileLocale))
-                           $ sortBy (compare 'on' (snd . tileLocale)) thisWell
+                           $ sortBy (compare 'on' (snd . tileLocale)) lainTiles
                   , length row == 10
                  ]
       --If no full rows go above well
@@ -40,7 +40,7 @@ attemptClear thisGame =
                           then gravitate thisTile thisGame clearedRows
                           else thisTile
                         | thisTile <- filter (\b -> (snd . tileLocale) b
-                                                      'notElem' fullRows) thisWell]
+                                                      'notElem' fullRows) lainTiles]
      , gameScore = gameScore thisGame + clearedRows
               }
 
@@ -69,7 +69,7 @@ where
     attemptClear' thisGame = let (t,ts) = nextTetromino $ tetrominoQueue thisGame
                              in attemptClear
                                 thisGame { currentTetromino = t
-                                          , well            = tiles (currentTetromino thisGame)
+                                          , tileScape       = tiles (currentTetromino thisGame)
                                           , tetrominoQueue  = ts
                                           , freezeTimer     = freezeDelay
                                          }
