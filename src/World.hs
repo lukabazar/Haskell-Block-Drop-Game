@@ -116,6 +116,7 @@ data Environment = Environment { currentTetromino :: Tetromino
                                 , gameScore       :: Int
                                 , freezeTimer     :: Int
                                 , gameStep        :: Int
+                                , gameIsOver      :: Boolean
                                 }
 
 --Delay before freezing stopped tetromino
@@ -146,5 +147,5 @@ newGame tetroBag = Environment { currentTetromino = consTetromino(head tetroBag)
                                 , gameScore       = 0
                                 , freezeTimer     = freezeDelay
                                 , gameStep        = 0
-
+                                , gameIsOver      = False
                                 }

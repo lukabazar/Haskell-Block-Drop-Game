@@ -3,7 +3,9 @@ Group 12
 CS357
 Fall 2023
 
-Module for game display behavior and input responses
+Module for game behavior and input responses
+TODO: Implement Game Over, Levels, Pause
+TODO: Possibly, implement hold piece
 -}
 
 module Tetris where
@@ -24,7 +26,7 @@ import Graphics.Gloss.Interface.Pure.Game
 attemptClear :: Environment -> Environment
 attemptClear thisGame = 
   let lainTiles = tileScape thisGame
-      --Find full rows
+      --Find full rows organize by y
       fullRows = [(snd . tileLocale . head) row
                     | row <- groupBy ((==) 'on' (snd . tileLocale))
                            $ sortBy (compare 'on' (snd . tileLocale)) lainTiles
@@ -36,6 +38,7 @@ attemptClear thisGame =
                     else minimum fullRows
       --Get the number of cleared rows for gravitate and score
       clearedRows = length fullRows
+  --Clear rows and gravitate appropriately
   in thisGame { tileScape = [if lowestRow <= (snd. tileLocale) thisTile
                           then gravitate thisTile thisGame clearedRows
                           else thisTile
@@ -46,9 +49,12 @@ attemptClear thisGame =
 
 --Generates next frame
 nextFrame :: Float -> Environment -> Environment
+--TODO: Check Game Over first, freeze or clear game environment
+--nextFrame _thisGame@(Environment { gameIsOver = True}) = 
+
 --Loop every 60 steps
 nextFrame _ thisGame@(Environment { gameStep = 59 }) =
-    thisGame { currentTetromino = translateTetromino( currentTetromino thisGame) ShiftDown thisGame
+    thisGame { currentTetromino = shiftTetromino( currentTetromino thisGame) ShiftDown thisGame
               , freezeTimer     = freezeDelay
               , gameStep        = 0
              }

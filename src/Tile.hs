@@ -10,7 +10,7 @@ module Tile
         ( well
         , wellOffset
         , paintTile
-        , translateTile
+        , shiftTile
         ) where
 
 --Locals
@@ -30,7 +30,7 @@ well = array ((0,0),(9,21)) [ ((x,y)
                              | x <- [0..9], y <- [0..21]
                             ]
 
-
+--Offset to align coordinates
 wellOffset :: Point
 wellOffset = (-100,-150)
 
@@ -44,17 +44,17 @@ paintTile thisTile = let (x,y) = grid ! tileLocale thisTile
                                                  , (x,y - tileSize)
                                                  ]
 
---Translates a single shift in direction through flip
-translateTile :: Shift -> Tile -> Tile
+--Shifts a tile in a given direction through flip
+shiftTile :: Shift -> Tile -> Tile
 
-translateTile ShiftDown  thisTile = thisTile { tileLocale = (id *** flip (-) 1)
+shiftTile ShiftDown  thisTile = thisTile { tileLocale = (id *** flip (-) 1)
                                                   $ tileLocale thisTile
-                                             }
+                                         }
 
-translateTile ShiftLeft  thisTile = thisTile { tileLocale = (flip (-) 1 *** id)
+shiftTile ShiftLeft  thisTile = thisTile { tileLocale = (flip (-) 1 *** id)
                                                   $ tileLocale thisTile
-                                             }
+                                         }
 
-translateTile ShiftRight thisTile = thisTile { tileLocale = ((+) 1 *** id)
+shiftTile ShiftRight thisTile = thisTile { tileLocale = ((+) 1 *** id)
                                                   $ tileLocale thisTile
-                                             }
+                                         }

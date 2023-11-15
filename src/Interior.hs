@@ -13,7 +13,7 @@ module Interior
         , paintTetromino
         , spawnTetromino
         , rotateTetromino
-        , translateTetromino
+        , shiftTetromino
         , gravitate
         ) where
 
@@ -51,7 +51,9 @@ spawnTetromino thisGame = let (t,ts) = nextTetromino $ tetrominoQueue thisGame
                                              , tetrominoQueue = ts
                                              , tileScape      = tiles t ++ lainTiles thisGame
                                            }
-                             else newWorld $ tetrominoQueue thisGame
+                             --Exit game if cannot TODO: Game Over 
+                             else thisGame {  gameIsOver = True}
+                                  exitSuccess
 
 --Determines if rotation is valid then performs it if so
 rotateTetromino :: Tetromino -> Environment -> Tetromino
@@ -60,10 +62,10 @@ rotateTetromino :: Tetromino -> Environment -> Tetromino
 rotateTetromino' :: Tetromino -> Tetromino
 
 --Determines if shift is valid, then performs it if so
-translateTetromino :: Tetromino -> Shift -> Environment -> Tetromino
+shiftTetromino :: Tetromino -> Shift -> Environment -> Tetromino
 
 --Helper to perform actual shift
-translateTetromino' :: Tetromino -> Shift -> Tetromino
+shiftTetromino' :: Tetromino -> Shift -> Tetromino
 
 --Pulls tiles inexorably downward
 gravitate :: Tile -> Environment -> Int -> Tile
