@@ -19,7 +19,7 @@ module Interior
 
 --Locals
 import World
-import Block
+import Tile
 
 import Control.Applicative  ((<$>)
                             ,(<*>))
@@ -29,6 +29,13 @@ import Graphics.Gloss
 
 --Get head of list of tetrominos
 nextTetromino :: [TetroShape] -> (Tetromino,[TetroShape])
+nextTetromino (Igy:ts) = consTetromino Igy spawnLocale ts
+nextTetromino (Jun:ts) = consTetromino Jun spawnLocale ts
+nextTetromino (Loe:ts) = consTetromino Loe spawnLocale ts
+nextTetromino (Obi:ts) = consTetromino Obi spawnLocale ts
+nextTetromino (Sal:ts) = consTetromino Sal spawnLocale ts
+nextTetromino (Tam:ts) = consTetromino Tam spawnLocale ts
+nextTetromino (Zim:ts) = consTetromino Zim spawnLocale ts
 
 --Generate image of game
 paintGame :: Environment -> Picture
@@ -38,6 +45,13 @@ paintTetromino :: Tetromino -> Picture
 
 --Attempt to spawn at drop point
 spawnTetromino :: Environment -> Environment
+spawnTetromino thisGame = let (t,ts) = nextTetromino $ tetrominoQueue thisGame
+                          in if localeFree t thisGame
+                             then thisGame { currentTetromino = t
+                                             , tetrominoQueue = ts
+                                             , tileScape      = tiles t ++ lainTiles thisGame
+                                           }
+                             else newWorld $ tetrominoQueue thisGame
 
 --Determines if rotation is valid then performs it if so
 rotateTetromino :: Tetromino -> Environment -> Tetromino
@@ -51,8 +65,9 @@ translateTetromino :: Tetromino -> Shift -> Environment -> Tetromino
 --Helper to perform actual shift
 translateTetromino' :: Tetromino -> Shift -> Tetromino
 
---Pulls blocks inexorably downward
-gravitate :: Block -> Environment -> Int -> Block
+--Pulls tiles inexorably downward
+gravitate :: Tile -> Environment -> Int -> Tile
 
 --Check if a Coord is occupied
 localeFree :: Coord -> Environment -> Tetromino
+localeFree loc thisGame = any ((/=) loc . tileLocale) $ tileScape thisGame

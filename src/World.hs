@@ -23,18 +23,18 @@ import Graphics.Gloss       (Color
 import System.Random        (getStdGen
                             ,randomRs)
 
---Blocks have coordinates in the well and a color
-data Block = Block { blockLocale :: Coord
-                    , blockColor :: Color
+--Tiles have coordinates in the well and a color
+data Tile = Tile { tileLocale :: Coord
+                    , tileColor :: Color
                     } deriving (Show,Eq)
 
---Block equivalence is coordinate based
-instance Eq Block where
-    (Block a1 b1 == Block a2 b2) = (a1 == a2)
+--Tile equivalence is coordinate based
+instance Eq Tile where
+    (Tile a1 b1 == Tile a2 b2) = (a1 == a2)
 
---Make all blocks the same size
-blockSize :: Float
-blockSize = 20
+--Make all tiles the same size
+tileSize :: Float
+tileSize = 20
 
 --The seven classic tetrominos
 data TetroShape = Igy | Jun | Loe | Obi | Sal | Tam | Zim 
@@ -43,7 +43,7 @@ data TetroShape = Igy | Jun | Loe | Obi | Sal | Tam | Zim
 --Tetrominos have a shape, location, and size
 data Tetromino = Tetromino { shape           :: TetroShape
                             ,tetrominoLocale :: Coord
-                            ,blockSize       :: [Block]
+                            ,tiles       :: [Tile]
                             }
 
 --Tetrominos equivalence based on coordinates and shape
@@ -54,49 +54,49 @@ instance Eq Tetromino where
 --Constructs Tetrominos as 4 synced coordinates from shape and point
 consTetromino :: TetroShape -> Coord -> Tetromino
 consTetromino Igy p@(x,y) = Tetromino Igy p
-                            $ map (flip Block orange)
+                            $ map (flip Tile orange)
                                   [ (x - 2,y)
                                   , (x - 1,y)
                                   , p
                                   , (x + 1,y)
                                   ]
 consTetromino Jun l@(x,y) = Tetromino Jun p
-                            $ map (flip Block yellow)
+                            $ map (flip Tile yellow)
                                   [ (x - 1,y + 1)
                                   , (x - 1,y)
                                   , p
                                   , (x + 1,y)
                                   ]
 consTetromino Loe l@(x,y) = Tetromino Loe p
-                            $ map (flip Block green)
+                            $ map (flip Tile green)
                                   [ (x - 1,y)
                                   , p
                                   , (x + 1,y)
                                   , (x + 1,y + 1)
                                   ]
 consTetromino Obi l@(x,y) = Tetromino Obi p
-                            $ map (flip Block cyan)
+                            $ map (flip Tile cyan)
                                   [ p
                                   , (x,y + 1)
                                   , (x + 1,y + 1)
                                   , (x + 1,y)
                                   ]
 consTetromino Sal l@(x,y) = Tetromino Sal p
-                            $ map (flip Block blue)
+                            $ map (flip Tile blue)
                                   [ (x - 1,y)
                                   , p
                                   , (x,y +1)
                                   , (x + 1,y + 1)
                                   ]
 consTetromino Tam l@(x,y) = Tetromino Tam p
-                            $ map (flip Block violet)
+                            $ map (flip Tile violet)
                                   [ (x - 1,y)
                                   , p
                                   , (x,y + 1)
                                   , (x + 1,y)
                                   ]
 consTetromino Zim l@(x,y) = Tetromino Zim p
-                            $ map (flip Block red)
+                            $ map (flip Tile red)
                                   [ (x - 1,y +1)
                                   , (x,y + 1)
                                   , p
@@ -112,7 +112,7 @@ data Shift = ShiftDown | ShiftRight | ShiftLeft
 
 data Environment = Environment { currentTetromino :: Tetromino
                                 , tetrominoQueue  :: [Tetromino]
-                                , blockScape      :: [Blocks]
+                                , tileScape       :: [Tiles]
                                 , gameScore       :: Int
                                 , freezeTimer     :: Int
                                 , gameStep        :: Int
@@ -142,9 +142,7 @@ where
 newGame :: [TetroShape] -> Environment
 newGame tetroBag = Environment { currentTetromino = consTetromino(head tetroBag) spawnLocale
                                 , tetrominoQueue  = tail
-                                , gameWell        = []
-                                , wellWidth       = wellCols
-                                , wellHeight      = wellRows
+                                , tileScape       = []
                                 , gameScore       = 0
                                 , freezeTimer     = freezeDelay
                                 , gameStep        = 0

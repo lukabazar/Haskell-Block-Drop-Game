@@ -23,11 +23,11 @@ import Graphics.Gloss.Interface.Pure.Game
 --Clear filled rows, generating score
 attemptClear :: Environment -> Environment
 attemptClear thisGame = 
-  let thisWell = blockScape thisGame
+  let thisWell = tileScape thisGame
       --Find full rows
-      fullRows = [(snd . blockLocale . head) row
-                    | row <- groupBy ((==) 'on' (snd . blockLocale))
-                           $ sortBy (compare 'on' (snd . blockLocale)) thisWell
+      fullRows = [(snd . tileLocale . head) row
+                    | row <- groupBy ((==) 'on' (snd . tileLocale))
+                           $ sortBy (compare 'on' (snd . tileLocale)) thisWell
                   , length row == 10
                  ]
       --If no full rows go above well
@@ -36,10 +36,10 @@ attemptClear thisGame =
                     else minimum fullRows
       --Get the number of cleared rows for gravitate and score
       clearedRows = length fullRows
-  in thisGame { blockScape = [if lowestRow <= (snd. blockLocale) thisBlock
-                          then gravitate thisBlock thisGame clearedRows
-                          else thisBlock
-                        | thisBlock <- filter (\b -> (snd . blockLocale) b
+  in thisGame { tileScape = [if lowestRow <= (snd. tileLocale) thisTile
+                          then gravitate thisTile thisGame clearedRows
+                          else thisTile
+                        | thisTile <- filter (\b -> (snd . tileLocale) b
                                                       'notElem' fullRows) thisWell]
      , gameScore = gameScore thisGame + clearedRows
               }
@@ -53,11 +53,11 @@ nextFrame _ thisGame@(Environment { gameStep = 59 }) =
               , gameStep        = 0
              }
 --Else progress normally
-nextFrame _ thisGame = let fallingBlocks = map blockLocale $ blocks $ currentTetromino thisGame
-                           frozenBlocks = map (( id *** (+) 1) . blockLocale) $ blockScape thisGame
+nextFrame _ thisGame = let fallingTiles = map tileLocale $ tiles $ currentTetromino thisGame
+                           lainTiles = map (( id *** (+) 1) . tileLocale) $ tileScape thisGame
                        --Determined by whether freeze timer has hit 0
                        in case ( freezeTimer thisGame <= 0
-                                , any ((== 0) . snd) fallingBlocks || or ((==) <$> fallingBlocks <*> frozenBlocks)
+                                , any ((== 0) . snd) fallingTiles || or ((==) <$> fallingTiles <*> frozenTiles)
                                 ) of
                               (True,True)   -> attemptClear' thisGame
                               (False,True)  -> thisGame { freezeTimer = freezeTimer thisGame - 1 }
@@ -66,10 +66,10 @@ nextFrame _ thisGame = let fallingBlocks = map blockLocale $ blocks $ currentTet
                                                         }
 --Place and freeze current tetromino and get next one
 where
-    attemptClear' thisGame = let (t',ts) = nextTetromino $ tetrominoQueue thisGame
+    attemptClear' thisGame = let (t,ts) = nextTetromino $ tetrominoQueue thisGame
                              in attemptClear
-                                thisGame { currentTetromino = t'
-                                          , well            = blocks (currentTetromino thisGame)
+                                thisGame { currentTetromino = t
+                                          , well            = tiles (currentTetromino thisGame)
                                           , tetrominoQueue  = ts
                                           , freezeTimer     = freezeDelay
                                          }
