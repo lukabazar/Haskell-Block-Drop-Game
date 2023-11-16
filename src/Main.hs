@@ -1,9 +1,14 @@
 import System.Directory
 import Game
+import TwoPlayer
+import System.Directory.Internal.Prelude (getArgs)
 
 main :: IO()
 main = do
+  args <- getArgs
   scores <- unpersistScores
+  if args[0] == "--2Player"
+     newScores <- competitiveGame scores
   newScores <- playGame scores
   persistScores newScores
 
