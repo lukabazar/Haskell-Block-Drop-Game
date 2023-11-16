@@ -1,7 +1,6 @@
 {- TODO: Additional Features 
             "Next Piece" window
             Hold tetromino option
-            Fullscreen mode
 
          Improvements to current Implementation
             Better solution than bouncing from walls or dropping for wall collision
@@ -133,11 +132,11 @@ playGame theHighScores = newStdGen >>= \g -> runCurses $ do
 
       game :: [Int] -> Curses [Int]
       game scores = do
-        --updaetWindow resizeWindow wellWidth wellHeight
-        updateWindow gameWindow $ drawGrid wellHeight wellWidth gridcolor
-        updateWindow gameWindow levelMenu
-        updateWindow gameWindow clearStats
-        updateWindow gameWindow $ drawHighScores scores
+        updateWindow gameWindow $ do
+            drawGrid wellHeight wellWidth gridcolor
+            levelMenu
+            clearStats
+            drawHighScores scores
         render
         ev <- getEvent gameWindow Nothing
         case ev of
