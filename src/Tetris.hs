@@ -1,201 +1,345 @@
-{- Placeholder for 2 player, current idea of implementation is to duplicate
-   necessary functions and differentiate with _One and _Two updating as
-   needed. Primary concern is that it would be prohibitively taxing, or at
-   least horrendously inefficient. Might be better off having the same
-   functions expanded to handle both games. Exceptions to this will be, at
-   least and not limited to, eventHandlers, scores, and Game Overs. the returned
-   score should be the overall highest, game should stop automatically if one
-   player has achieved game over and the other has a higher score, but should
-   continue if the still active player has a lower score
+module Tetris(
+    newGame,
+    randomTetromino,
+    update,
+    addBlock,
+    dropBlock,
+    speedUp,
+    moveRight,
+    moveLeft,
+    rotate,
+    score,
+    gameOver,
+    Grid,
+    Row,
+    Block(..),
+    Tetromino(..)
+) where
 
-module TwoPlayer where
-
-import Control.Monad
-import Data.Char
 import Data.List
+import Data.Maybe
 import System.Random
-import Tetris
-import Game
-import Text.Printf
-import UI.NCurses
 
-playGame :: [Int] -> IO [Int]
-playGame theHighScores = newStdGen >>= \g -> runCurses $ do
-  gameWindow <- defaultWindow
-  gridcolor <- newColorID ColorBlue ColorDefault 1
-  red <- newColorID ColorRed ColorRed 2
-  green <- newColorID ColorGreen ColorGreen 3
-  blue <- newColorID ColorBlue ColorBlue 4
-  yellow <- newColorID ColorYellow ColorYellow 5
-  cyan <- newColorID ColorCyan ColorCyan 6
-  white <- newColorID ColorWhite ColorWhite 7
-  magenta <- newColorID ColorMagenta ColorMagenta 8
-  whitetext <- newColorID ColorWhite ColorDefault 9
-  let
-      draw :: Maybe Block -> Update()
-      draw (Just (Block Igy _ _)) = drawBlock red
-      draw (Just (Block Jun _ _)) = drawBlock white
-      draw (Just (Block Loe _ _)) = drawBlock magenta
-      draw (Just (Block Obi _ _)) = drawBlock blue
-      draw (Just (Block Sal _ _)) = drawBlock green
-      draw (Just (Block Tam _ _)) = drawBlock yellow
-      draw (Just (Block Zim _ _)) = drawBlock cyan
-      draw Nothing = drawBlock gridcolor
+--Tetrominos datatype, one of 7 shapes
+data Tetromino = Igy | Jun | Loe | Obi | Sal | Tam | Zim
+            deriving (Eq, Show, Enum)
 
-      drawBlocks :: Grid -> Update()
-      drawBlocks [] = return ()
-      drawBlocks l@(h:t) = do
-        when (length l <= fromIntegral rows) $ drawLine h y
-        drawBlocks t
-        where
-          y = (wellHeight+rows)- toInteger (length t)
+--Block, the tetromino, whether it is moving, and origin
+data Block = Block { tetromino :: Tetromino, moving::Bool, origin::Bool}
+            deriving (Eq, Show)
 
-      drawLine :: Row -> Integer -> Update()
-      drawLine [] _ = return ()
-      drawLine (h:t) y = do
-        let x = columns - (toInteger (length block) * toInteger (length t))
-        moveCursor y $ wellWidth + x + columns
-        draw h
-        drawLine t y
+type Row = [Maybe Block]
 
-      drawGameOver :: Update()
-      drawGameOver = do
-        moveCursor (wellHeight + quot rows 2) (wellWidth + 8)
-        setColor whitetext
-        drawString "         "
-        moveCursor (wellHeight + quot rows 2 + 1) (wellWidth + 2)
-        drawString "     GAME OVER!     "
-        moveCursor (wellHeight + quot rows 2 + 2) (wellWidth + 2)
-        drawString " Press R to Retry "
-        moveCursor (wellHeight + quot rows 2 + 3) (wellWidth + 2)
-        drawString " Press Q to Quit "
+type Grid = [Row]
 
-      drawScore :: Int -> Update()
-      drawScore scoreValue = do
-        moveCursor (wellHeight - 1) (wellWidth + 1)
-        setColor gridcolor
-        let scoreString = show scoreValue
-        drawString ("Score: " ++ scoreString)
+--Returns an empty Tetris grid
+newGame :: Grid
+newGame = replicate gridHeight (replicate gridWidth Nothing)
 
-      drawHighScores :: [Int] -> Update ()
-      drawHighScores scores = setColor gridcolor >> forM_ (zip [1..] scores) drawHighScore
+--Returns a tuple containing a random Tetromino and a generator
+randomTetromino :: RandomGen g => g -> (Tetromino, g)
+randomTetromino g = case randomR (0,length [Igy ..]-1) g of (r, g') -> (toEnum r, g')
 
-      drawLevel :: Int -> Update()
-      drawLevel level = do
-        moveCursor (wellHeight - 1) (wellWidth + 15)
-        setColor gridcolor
-        drawString ("Level: " ++ show level)
+--Updates the state of a Tetris grid by gravitating, clearing lines and
+--stopping blocks
+update :: Grid -> Tetromino -> Grid
+update = addBlock . gravitate . clearLines . freezeBlocks
 
-      levelMenu = do
-        setColor whitetext
-        drawString "                    "
-        moveCursor (wellHeight + quot rows 2 + 1) (wellWidth + 2)
-        drawString "    Choose level:   "
-        moveCursor (wellHeight + quot rows 2 + 2) (wellWidth + 2)
-        drawString "        0-9         "
+--Adds Tetrominod blocks on top of the grid
+addBlock :: Grid -> Tetromino -> Grid
+addBlock rows tetromino'
+  | empty rows && not (gameOver rows) = createTetromino tetromino' ++ drop 4 rows
+  | otherwise = rows
 
-      clearStats = do
-        moveCursor (wellHeight - 1) (wellWidth + 1)
-        setColor gridcolor
-        drawString "                      "
+--Drops current Tetromino to the bottom
+dropBlock :: Grid -> Grid
+dropBlock rows
+  | grows /= rows = dropBlock grows
+  | otherwise = rows
+  where
+    grows = gravitate rows
 
-      updateScreen :: Grid -> Int -> StdGen -> Int -> [Int] -> Bool -> Curses [Int]
-      updateScreen gameState currentScore gen lvl highScores updatable = do
-        let
-          gameEnded = gameOver gameState
-          newHighScores
-            | gameEnded && updatable = take 5 . reverse . sort $ currentScore : highScores
-            | otherwise = highScores
-          newUpd = not gameEnded
-        updateWindow gameWindow $ do
-          drawBlocks gameState
-          drawScore currentScore
-          drawLevel lvl
-          when gameEnded drawGameOver
-          drawHighScores newHighScores
-        render
-        ev <- getEvent gameWindow (Just ((1+(9-toInteger lvl))*100))
-        case ev of
-          Nothing -> updateScreen state newScore gen' lvl newHighScores newUpd
-          Just ev'
-            | ev' == EventCharacter 'q' -> return newHighScores
-            | ev' == EventSpecialKey KeyLeftArrow -> updateScreen (moveLeft state) newScore gen' lvl newHighScores newUpd
-            | ev' == EventSpecialKey KeyRightArrow -> updateScreen (moveRight state) newScore gen' lvl newHighScores newUpd
-            | ev' == EventSpecialKey KeyDownArrow -> updateScreen (speedUp state) newScore gen' lvl newHighScores newUpd
-            | ev' == EventSpecialKey KeyUpArrow -> updateScreen (rotate state) newScore gen' lvl newHighScores newUpd
-            | ev' == EventCharacter ' ' -> updateScreen (dropBlock state) newScore gen' lvl newHighScores newUpd
-            | ev' == EventCharacter 'r' -> game newHighScores
-            | otherwise -> updateScreen state newScore gen' lvl newHighScores newUpd
-        where
-          (nexttetromino, gen') = randomTetromino gen
-          state = update gameState nexttetromino
-          newScore = currentScore + (score gameState*(1+lvl))
+--Speeds up the gravity
+speedUp :: Grid -> Grid
+speedUp = gravitate
 
-      game :: [Int] -> Curses [Int]
-      game scores = do
-        updateWindow gameWindow $ drawGrid wellHeight wellWidth gridcolor
-        updateWindow gameWindow levelMenu
-        updateWindow gameWindow clearStats
-        updateWindow gameWindow $ drawHighScores scores
-        render
-        ev <- getEvent gameWindow Nothing
-        case ev of
-          Nothing -> game scores
-          Just (EventCharacter c)
-            | isNumber c -> updateScreen newGame 0 g (digitToInt c) scores True
-            | c == 'q' -> return scores
-          Just _ -> game scores
+--Moves the moving blocks right, bounces off wall to decrease speed up
+moveRight :: Grid -> Grid
+moveRight rows
+  | touchright rows = map reverse . transpose . gravitate . transpose . map reverse $ rows
+  | otherwise = transpose . gravitate . transpose $ rows
 
-  _ <- setCursorMode CursorInvisible
-  setEcho False
-  game theHighScores
+--Moves the moving blocks left, bounces off wall to decrease speed up
+moveLeft :: Grid -> Grid
+moveLeft rows
+  | touchleft rows = transpose . gravitate . transpose $ rows
+  | otherwise = map reverse . transpose . gravitate . transpose . map reverse $ rows
 
-drawBlock :: ColorID -> Update()
-drawBlock color = do
-  setColor color
-  drawString block
+-- | checks if the piece touches the right wall
+touchright :: Grid -> Bool
+touchright = any moving . mapMaybe last
 
-drawGrid :: Integer -> Integer -> ColorID -> Update()
-drawGrid y x wellColor = do
-  setColor wellColor
-  moveCursor y (x+1)
-  drawString wellTop
-  drawLines (y+1) (x+1)
-  moveCursor (rows+y+1) (x+1)
-  drawString wellBottom
+-- | checks if the piece touches the left wall
+touchleft :: Grid -> Bool
+touchleft = any moving . mapMaybe head
 
-drawLines :: Integer -> Integer -> Update()
-drawLines y x = drawLines' y x rows
+--rotates the moving blocks clockwise
+rotate :: Grid -> Grid
+rotate g = insertRotated (clearGrid g) (rotateBlock g) (map (getBlock g) (movingCoordinates g))
 
-drawLines' :: Integer -> Integer -> Integer -> Update()
-drawLines' y x n
-  | n < 1 = return()
-  | otherwise = do
-      moveCursor y x
-      drawString wellMiddle
-      drawLines' (y+1) x (n-1)
+insertRotated :: Grid -> [(Int,Int)] -> [Maybe Block] -> Grid
+insertRotated grid [] _ = grid
+insertRotated grid (h:t) (val:valt) = insertRotated (setBlock grid h val) t valt
+insertRotated _ (_:_) [] = error "This should not happen"
 
-drawHighScore :: (Integer, Int) -> Update ()
-drawHighScore (i, s) = do
-  moveCursor (wellHeight + rows + 1 + i) (wellWidth + 6)
-  drawString $ printf "%d.%10d" i s
+clearGrid :: Grid -> Grid
+clearGrid grid = clearGrid' grid $ movingCoordinates grid
 
-wellTop, wellMiddle, wellBottom :: String
-wellTop    = " _  __  __  __  __  _ "
-wellMiddle = "|                    |"
-wellBottom = " ^^^^^^^^^^^^^^^^^^^^ "
+clearGrid' :: Grid -> [(Int,Int)] -> Grid
+clearGrid' = foldl (\grid h -> setBlock grid h Nothing)
 
-block :: String
-block = "  "
+movingCoordinates :: Grid -> [(Int,Int)]
+movingCoordinates [] = []
+movingCoordinates (h:t) = movingCoordinates' h (25 - length t)  ++ movingCoordinates t
 
-wellWidth :: Integer
-wellWidth = 50
+movingCoordinates' :: Row -> Int -> [(Int,Int)]
+movingCoordinates' [] _ = []
+movingCoordinates' (h:t) y
+  | movingBlock h = (y,9- length t):movingCoordinates' t y
+  | otherwise = movingCoordinates' t y
 
-wellHeight :: Integer
-wellHeight = 4
+getOrigin :: Grid -> (Int,Int)
+getOrigin = head . origins
 
-rows :: Integer
-rows = toInteger (length newGame - 4)
+isOrigin :: Grid -> (Int,Int) -> Bool
+isOrigin grid (x,y) = maybe False origin $ getBlock grid (x, y)
 
-columns :: Integer
-columns = toInteger (length (head newGame)) -}
+origins :: Grid -> [(Int,Int)]
+origins grid = filter (isOrigin grid) (movingCoordinates grid)
+
+rotateBlock :: Grid -> [(Int,Int)]
+rotateBlock grid
+  | hasOrigin grid && all (unoccupied grid) rotated = rotated
+  | otherwise = movingCoords
+  where
+    movingCoords = movingCoordinates grid
+    rotated = map (rotatePoint $ getOrigin grid) movingCoords
+
+rotatePoint ::(Int,Int) -> (Int,Int) -> (Int,Int)
+rotatePoint (originx,originy) (x,y) = (originx + originy - y, originy - originx + x)
+
+hasOrigin ::Grid -> Bool
+hasOrigin = not . null . origins
+
+unoccupied :: Grid -> (Int,Int) -> Bool
+unoccupied grid (x,y) =
+  and [x > 0, x < gridHeight, y > 0, y < gridWidth, not . stationaryBlock $ getBlock grid (x,y)]
+
+getBlock :: Grid -> (Int,Int) -> Maybe Block
+getBlock grid (x,y) = grid !! x !! y
+
+setBlock :: Grid -> (Int,Int) -> Maybe Block -> Grid
+setBlock grid (x,y) val = g1 ++ setBlock' (head g2) y val : tail g2
+  where
+    (g1, g2) = splitAt x grid
+
+setBlock' :: Row -> Int -> Maybe Block -> Row
+setBlock' row y val = r1 ++ val : tail r2
+  where
+    (r1, r2) = splitAt y row
+
+--Gives the score for current state
+score :: Grid -> Int
+score = product . replicate 2 . length . filter id . map fullLine
+
+--Indicates whether the given states results in a game over
+gameOver :: Grid -> Bool
+gameOver = any (not . all moving . catMaybes) . take 4
+
+---Helpers
+
+gridHeight :: Int
+gridHeight = 26
+
+gridWidth:: Int
+gridWidth = 10
+
+--Gravitates moving blocks downwards
+gravitate :: Grid -> Grid
+gravitate rows
+  | stopped rows = rows
+  | otherwise = transpose . gravitateRows . transpose $ rows
+  where
+    gravitateRow :: Row -> Row
+    gravitateRow [] = []
+    gravitateRow row@(h:t)
+      | movingBlock h = moveBlocks row
+      | otherwise = h : gravitateRow t
+
+    gravitateRows :: Grid -> Grid
+    gravitateRows [] = []
+    gravitateRows (h:t) = gravitateRow h : gravitateRows t
+
+--Moves blocks downwards
+moveBlocks :: Row -> Row
+moveBlocks l
+  | isGap (gap l) = (Nothing:movingBlocks l) ++ tail (gap l) ++ ground l
+  | otherwise = error "Should never happen?"
+  where
+    isGap :: Row -> Bool
+    isGap row = not (null $ gap row) && isNothing (head $ gap row)
+
+    movingBlocks :: Row -> Row
+    movingBlocks (h:t) | movingBlock h = h:movingBlocks t
+    movingBlocks _ = []
+
+    gap :: Row -> Row
+    gap (Nothing:t) = Nothing: gap' t
+    gap (h:t) | movingBlock h = gap t
+    gap _ = []
+
+    gap' :: Row -> Row
+    gap' (Nothing:t) = Nothing:gap' t
+    gap' _ = []
+
+    ground :: Row -> Row
+    ground [] = []
+    ground (h:t)
+      | stationaryBlock h = h:t
+      | otherwise = ground t
+
+--Determines whether the moving blocks have stopped moving
+stopped :: Grid -> Bool
+stopped rows = any stopped' (transpose rows) || empty rows
+  where
+    stopped' :: Row -> Bool
+    stopped' [] = False
+    stopped' row | all movingBlock row = True
+    stopped' (first:second:_) | movingBlock first && stationaryBlock second = True
+    stopped' (_:t) = stopped' t
+
+--Determines whether a given block is moving
+movingBlock :: Maybe Block -> Bool
+movingBlock = maybe False moving
+
+--Determines whether a given block is moving
+stationaryBlock :: Maybe Block -> Bool
+stationaryBlock = maybe False (not . moving)
+
+--Determines whether there are no moving blocks
+empty :: Grid -> Bool
+empty rows = all empty' (transpose rows)
+  where
+    empty' :: Row -> Bool
+    empty' l = not (any moving (catMaybes l))
+
+--Clears all full lines from the grid
+clearLines :: Grid -> Grid
+clearLines rows
+  | empty rows = replicate (missingRows rows) emptyRow ++ removeLines rows
+  | otherwise = rows
+
+missingRows :: Grid -> Int
+missingRows rows = length rows - length (removeLines rows)
+
+emptyRow :: Row
+emptyRow = replicate 10 Nothing
+
+removeLines :: Grid -> Grid
+removeLines = filter (not . fullLine)
+
+--Determines whether a line is full
+fullLine :: Row -> Bool
+fullLine line = filter (/= Nothing) line == line
+
+--Changes moving blocks that have stopped moving to stationary
+freezeBlocks :: Grid -> Grid
+freezeBlocks rows
+  | stopped rows = map freezeBlocks' rows
+  | otherwise = rows
+  where
+    freezeBlocks' :: Row -> Row
+    freezeBlocks' [] = []
+    freezeBlocks' (Just (Block s True o):t) = Just (Block s False o): freezeBlocks' t
+    freezeBlocks' b  = head b:freezeBlocks' (tail b)
+
+--Creates a grid containing a given Tetromino to put on top of a game grid
+createTetromino :: Tetromino -> Grid
+createTetromino sh
+  | sh == Igy = pad createIgy
+  | sh == Jun = pad createJun
+  | sh == Loe = pad createLoe
+  | sh == Obi = pad createObi
+  | sh == Sal = pad createSal
+  | sh == Tam = pad createTam
+  | sh == Zim = pad createZim
+  | otherwise = error "Unrecognized Tetromino"
+  where
+    block tetromino' origin' = Just (Block tetromino' True origin')
+    x = Nothing
+    hpad l = replicate 3 x ++ l ++ replicate 4 x
+
+    pad s
+      | length s == 2 = emptyRow : map hpad s ++ [emptyRow]
+      | length s == 3 = emptyRow : map hpad s
+      | otherwise = map hpad s
+
+    createIgy = [
+      [x,b,x],
+      [x,o,x],
+      [x,b,x],
+      [x,b,x]
+      ]
+      where
+        b = block Igy False
+        o = block Igy True
+
+    createJun = [
+      [x,b,x],
+      [x,o,x],
+      [b,b,x]
+      ]
+      where
+        b = block Jun False
+        o = block Jun True
+
+    createLoe = [
+      [x,b,x],
+      [x,o,x],
+      [x,b,b]
+      ]
+      where
+        b = block Loe False
+        o = block Loe True
+
+    createObi = [
+      [x,b,b],
+      [x,b,b]
+      ]
+      where
+        b = block Obi False
+
+
+    createSal = [
+      [x,b,b],
+      [b,o,x]
+      ]
+      where
+        b = block Sal False
+        o = block Sal True
+
+    createTam = [
+      [b,o,b],
+      [x,b,x]
+      ]
+      where
+        b = block Tam False
+        o = block Tam True
+
+    createZim = [
+      [b,b,x],
+      [x,o,b]
+      ]
+      where
+        b = block Zim False
+        o = block Zim True

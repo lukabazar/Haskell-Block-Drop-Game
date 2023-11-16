@@ -1,3 +1,6 @@
+module TwoPlayer where
+
+competitiveGame :: 
 {- Placeholder for 2 player, current idea of implementation is to duplicate
    necessary functions and differentiate with _One and _Two updating as
    needed. Primary concern is that it would be prohibitively taxing, or at
@@ -8,7 +11,7 @@
    player has achieved game over and the other has a higher score, but should
    continue if the still active player has a lower score
 
-module TwoPlayer where
+
 
 import Control.Monad
 import Data.Char

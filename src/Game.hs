@@ -1,3 +1,14 @@
+{- TODO: Additional Features 
+            "Next Piece" window
+            Hold tetromino option
+            Fullscreen mode
+
+         Improvements to current Implementation
+            Better solution than bouncing from walls or dropping for wall collision
+            Shuffled "bag" rather than fully random tetromino generation
+
+-}
+
 module Game where
 
 import Control.Monad
@@ -122,6 +133,7 @@ playGame theHighScores = newStdGen >>= \g -> runCurses $ do
 
       game :: [Int] -> Curses [Int]
       game scores = do
+        updaetWindow do resizeWindow wellWidth wellHeight
         updateWindow gameWindow $ drawGrid wellHeight wellWidth gridcolor
         updateWindow gameWindow levelMenu
         updateWindow gameWindow clearStats
