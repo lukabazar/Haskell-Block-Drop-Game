@@ -133,7 +133,7 @@ playGame theHighScores = newStdGen >>= \g -> runCurses $ do
 
       game :: [Int] -> Curses [Int]
       game scores = do
-        updaetWindow do resizeWindow wellWidth wellHeight
+        --updaetWindow resizeWindow wellWidth wellHeight
         updateWindow gameWindow $ drawGrid wellHeight wellWidth gridcolor
         updateWindow gameWindow levelMenu
         updateWindow gameWindow clearStats

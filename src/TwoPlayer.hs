@@ -1,6 +1,7 @@
 module TwoPlayer where
 
-competitiveGame :: 
+competitiveGame :: [Int] -> IO [Int]
+competitiveGame xs = return xs
 {- Placeholder for 2 player, current idea of implementation is to duplicate
    necessary functions and differentiate with _One and _Two updating as
    needed. Primary concern is that it would be prohibitively taxing, or at
