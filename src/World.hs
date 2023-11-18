@@ -40,10 +40,10 @@ tileSize = 20
 data TetroShape = Igy | Jun | Loe | Obi | Sal | Tam | Zim 
                     deriving (Show,Eq,Enum)
 
---Tetrominos have a shape, location, and size
+--Tetrominos have tiles, a shape, and location based on anchor tile
 data Tetromino = Tetromino { shape           :: TetroShape
                             ,tetrominoLocale :: Coord
-                            ,tiles       :: [Tile]
+                            ,tiles           :: [Tile]
                             }
 
 --Tetrominos equivalence based on coordinates and shape
@@ -116,7 +116,7 @@ data Environment = Environment { currentTetromino :: Tetromino
                                 , gameScore       :: Int
                                 , freezeTimer     :: Int
                                 , gameStep        :: Int
-                                , gameIsOver      :: Boolean
+                                , gameIsOver      :: Bool
                                 }
 
 --Delay before freezing stopped tetromino

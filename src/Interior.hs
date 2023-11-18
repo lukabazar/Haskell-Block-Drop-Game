@@ -56,20 +56,34 @@ spawnTetromino thisGame = let (t,ts) = nextTetromino $ tetrominoQueue thisGame
                                   exitSuccess
 
 --Determines if rotation is valid then performs it if so
+--Takes the tetromino and environment, returns the rotated tetromino
+--Possible improvement: Check piece can be shifted to make rotation possible
 rotateTetromino :: Tetromino -> Environment -> Tetromino
+rotateTetromino thisTet thisGame = let tempTet = rotateTetromino' thisTet
+                                   --Check bounds and tileScape
+                                   in if withinBounds tempTet && localeFree tempTet thisGame
+                                        then tempTet
+                                        --If fails keep same
+                                        else currentTetromino thistGame
+
 
 --Helper to perform actual rotation
 rotateTetromino' :: Tetromino -> Tetromino
 
 --Determines if shift is valid, then performs it if so
+--Takes a tetromino, an inicated shift and the environment, returns the tetromino at the new location
 shiftTetromino :: Tetromino -> Shift -> Environment -> Tetromino
 
 --Helper to perform actual shift
+--After the primary confirms the move is legal, takes the tetromino and shift and performs it
 shiftTetromino' :: Tetromino -> Shift -> Tetromino
 
 --Pulls tiles inexorably downward
+--Takes a tile, environment, and how many spaces to gravitate, returns a tile with the new appropriate coordinates
 gravitate :: Tile -> Environment -> Int -> Tile
 
---Check if a Coord is occupied
-localeFree :: Coord -> Environment -> Tetromino
-localeFree loc thisGame = any ((/=) loc . tileLocale) $ tileScape thisGame
+localeFree :: Tetromino -> Environment -> Bool
+localeFree  thisTet thistGame = all (tileFree) (tileLocale tiles thisTet) (thisGame)
+
+withinBounds :: Tetromino -> Bool
+withinBounds thisTet = all (tileInBounds) (tiles thisTet)
