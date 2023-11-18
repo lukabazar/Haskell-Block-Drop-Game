@@ -60,6 +60,14 @@ shiftTile ShiftRight thisTile = thisTile { tileLocale = ((+) 1 *** id)
                                                   $ tileLocale thisTile
                                          }
 
+
+--Pulls tiles inexorably downward
+gravitate :: Tile -> Environment -> Int -> Tile
+gravitate thisTile _ 0 = thisTile
+gravitate thisTile thisGame acc = gravitate tile { tileLocale = (id *** flip (-) 1)
+                                                                $ tileLocale thisTile
+                                                 } thisGame (acc - 1)
+
 --Check if tile is within bounds
 tileInBounds :: Tile -> Bool
 tileInBounds thisTile = 

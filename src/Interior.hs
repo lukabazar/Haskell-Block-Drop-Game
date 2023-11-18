@@ -69,6 +69,9 @@ rotateTetromino thisTet thisGame = let tempTet = rotateTetromino' thisTet
 
 --Helper to perform actual rotation
 rotateTetromino' :: Tetromino -> Tetromino
+--Ignore rotation on Obi
+rotateTetromino' thisTet@(Tetromino { shape = Obi }) = thisTet
+rotateTetromino' thisTet = th
 
 --Determines if shift is valid, then performs it if so
 --Takes a tetromino, an inicated shift and the environment, returns the tetromino at the new location
@@ -77,10 +80,6 @@ shiftTetromino :: Tetromino -> Shift -> Environment -> Tetromino
 --Helper to perform actual shift
 --After the primary confirms the move is legal, takes the tetromino and shift and performs it
 shiftTetromino' :: Tetromino -> Shift -> Tetromino
-
---Pulls tiles inexorably downward
---Takes a tile, environment, and how many spaces to gravitate, returns a tile with the new appropriate coordinates
-gravitate :: Tile -> Environment -> Int -> Tile
 
 localeFree :: Tetromino -> Environment -> Bool
 localeFree  thisTet thistGame = all (tileFree) (tileLocale tiles thisTet) (thisGame)
