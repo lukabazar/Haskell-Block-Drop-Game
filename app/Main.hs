@@ -1,7 +1,6 @@
 module Main where   
 
 import Tetris
-import System.Directory
 
 main :: IO ()
 main = getTetroBag >>= \tetroBag ->

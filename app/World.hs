@@ -26,11 +26,11 @@ import System.Random        (getStdGen
 --Tiles have coordinates in the well and a color
 data Tile = Tile { tileLocale :: Coord
                     , tileColor :: Color
-                    } deriving (Show,Eq)
+                    }
 
 --Tile equivalence is coordinate based
 instance Eq Tile where
-    (Tile a1 b1 == Tile a2 b2) = (a1 == a2)
+    Tile a1 b1 == Tile a2 b2 = a1 == a2
 
 --Make all tiles the same size
 tileSize :: Float
@@ -48,8 +48,8 @@ data Tetromino = Tetromino { shape           :: TetroShape
 
 --Tetrominos equivalence based on coordinates and shape
 instance Eq Tetromino where
-    (Tetromino a1 b1 c1 == Tetromino a2 b2 c2) = ((a1 == a2) 
-                                                  && (b1 == b2))
+    Tetromino a1 b1 c1 == Tetromino a2 b2 c2 = (a1 == a2) 
+                                                  && (b1 == b2)
 
 --Constructs Tetrominos as 4 synced coordinates from shape and point
 consTetromino :: TetroShape -> Coord -> Tetromino
@@ -70,7 +70,7 @@ consTetromino Jun l@(x,y) = Tetromino Jun p
 consTetromino Loe l@(x,y) = Tetromino Loe p
                             $ map (flip Tile green)
                                   [ (x - 1,y)
-                                  , p
+                                  , l
                                   , (x + 1,y)
                                   , (x + 1,y + 1)
                                   ]
@@ -112,11 +112,11 @@ data Shift = ShiftDown | ShiftRight | ShiftLeft
 
 data Environment = Environment { currentTetromino :: Tetromino
                                 , tetrominoQueue  :: [Tetromino]
-                                , tileScape       :: [Tiles]
+                                , tileScape       :: [Tile]
                                 , gameScore       :: Int
                                 , freezeTimer     :: Int
                                 , gameStep        :: Int
-                                , gameIsOver      :: Boolean
+                                , gameIsOver      :: Bool
                                 }
 
 --Delay before freezing stopped tetromino
@@ -125,20 +125,20 @@ freezeDelay = 30
 
 
 spawnLocale :: Coord
-spawnLocale :: (4, 20)
+spawnLocale = (4, 20)
 
 getTetroBag :: IO [TetroShape]
 getTetroBag = map intToType
                 <$> liftM (randomRs (0 :: Int,6 :: Int)) getStdGen
-where
-    intToType n
-        | n == 0 = Igy
-        | n == 1 = Jun
-        | n == 2 = Loe
-        | n == 3 = Obi
-        | n == 4 = Sal
-        | n == 5 = Tam
-        | n == 6 = Zim
+      where
+            intToType n
+                  | n == 0 = Igy
+                  | n == 1 = Jun
+                  | n == 2 = Loe
+                  | n == 3 = Obi
+                  | n == 4 = Sal
+                  | n == 5 = Tam
+                  | n == 6 = Zim
 
 newGame :: [TetroShape] -> Environment
 newGame tetroBag = Environment { currentTetromino = consTetromino(head tetroBag) spawnLocale

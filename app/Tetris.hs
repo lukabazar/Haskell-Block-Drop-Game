@@ -71,8 +71,8 @@ nextFrame _ thisGame = let fallingTiles = map tileLocale $ tiles $ currentTetrom
                                                           , gameStep = gameStep thisGame + 1 
                                                         }
 --Place and freeze current tetromino and get next one
-where
-    attemptClear' thisGame = let (t,ts) = nextTetromino $ tetrominoQueue thisGame
+      where
+            attemptClear' thisGame = let (t,ts) = nextTetromino $ tetrominoQueue thisGame
                              in attemptClear
                                 thisGame { currentTetromino = t
                                           , tileScape       = tiles (currentTetromino thisGame)

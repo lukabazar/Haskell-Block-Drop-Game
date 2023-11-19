@@ -21,7 +21,7 @@ import Data.Array     (Array,(!),array)
 import Graphics.Gloss (Picture(..),Point)
 
 --A 2d array of coordinates representing a 10x22 well
-well :: Array Cood Point
+well :: Array Coord Point
 --Standard initialization followed by setting up for paint with offset
 well = array ((0,0),(9,21)) [ ((x,y)
                               ,((+) (fromIntegral x * tileSize) ***
