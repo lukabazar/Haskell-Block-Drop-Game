@@ -29,13 +29,13 @@ import Graphics.Gloss
 
 --Get head of list of tetrominos
 nextTetromino :: [TetroShape] -> (Tetromino,[TetroShape])
-nextTetromino (Igy:ts) = consTetromino Igy spawnLocale ts
-nextTetromino (Jun:ts) = consTetromino Jun spawnLocale ts
-nextTetromino (Loe:ts) = consTetromino Loe spawnLocale ts
-nextTetromino (Obi:ts) = consTetromino Obi spawnLocale ts
-nextTetromino (Sal:ts) = consTetromino Sal spawnLocale ts
-nextTetromino (Tam:ts) = consTetromino Tam spawnLocale ts
-nextTetromino (Zim:ts) = consTetromino Zim spawnLocale ts
+nextTetromino (Igy1:ts) = consTetromino Igy1 spawnLocale ts
+nextTetromino (Jun1:ts) = consTetromino Jun1 spawnLocale ts
+nextTetromino (Loe1:ts) = consTetromino Loe1 spawnLocale ts
+nextTetromino (Obi:ts)  = consTetromino Obi spawnLocale ts
+nextTetromino (Sal1:ts) = consTetromino Sal1 spawnLocale ts
+nextTetromino (Tam1:ts) = consTetromino Tam1 spawnLocale ts
+nextTetromino (Zim1:ts) = consTetromino Zim1 spawnLocale ts
 
 --Generate image of game
 paintGame :: Environment -> Picture
@@ -67,11 +67,34 @@ rotateTetromino thisTet thisGame = let tempTet = rotateTetromino' thisTet
                                         else currentTetromino thistGame
 
 
---Helper to perform actual rotation
+--Helper to perform actual rotation transforms based on current shape
 rotateTetromino' :: Tetromino -> Tetromino
+--Igy
+rotateTetromino' thisTet@(Tetromino { shape = Igy1 }) = consTetromino Igy2 tetrominoLocale thisTet
+rotateTetromino' thisTet@(Tetromino { shape = Igy2 }) = consTetromino Igy1 tetrominoLocale thisTet
+--Jun
+rotateTetromino' thisTet@(Tetromino { shape = Jun1 }) = consTetromino Jun2 tetrominoLocale thisTet
+rotateTetromino' thisTet@(Tetromino { shape = Jun2 }) = consTetromino Jun3 tetrominoLocale thisTet
+rotateTetromino' thisTet@(Tetromino { shape = Jun3 }) = consTetromino Jun4 tetrominoLocale thisTet
+rotateTetromino' thisTet@(Tetromino { shape = Jun4 }) = consTetromino Jun1 tetrominoLocale thisTet
+--Loe
+rotateTetromino' thisTet@(Tetromino { shape = Loe1 }) = consTetromino Loe2 tetrominoLocale thisTet
+rotateTetromino' thisTet@(Tetromino { shape = Loe2 }) = consTetromino Loe3 tetrominoLocale thisTet
+rotateTetromino' thisTet@(Tetromino { shape = Loe3 }) = consTetromino Loe4 tetrominoLocale thisTet
+rotateTetromino' thisTet@(Tetromino { shape = Loe4 }) = consTetromino Loe1 tetrominoLocale thisTet
 --Ignore rotation on Obi
 rotateTetromino' thisTet@(Tetromino { shape = Obi }) = thisTet
-rotateTetromino' thisTet = th
+--Sal
+rotateTetromino' thisTet@(Tetromino { shape = Sal1 }) = consTetromino Sal2 tetrominoLocale thisTet
+rotateTetromino' thisTet@(Tetromino { shape = Sal2 }) = consTetromino Sal1 tetrominoLocale thisTet
+--Tam
+rotateTetromino' thisTet@(Tetromino { shape = Tam1 }) = consTetromino Tam2 tetrominoLocale thisTet
+rotateTetromino' thisTet@(Tetromino { shape = Tam2 }) = consTetromino Tam3 tetrominoLocale thisTet
+rotateTetromino' thisTet@(Tetromino { shape = Tam3 }) = consTetromino Tam4 tetrominoLocale thisTet
+rotateTetromino' thisTet@(Tetromino { shape = Tam4 }) = consTetromino Tam1 tetrominoLocale thisTet
+--Zim
+rotateTetromino' thisTet@(Tetromino { shape = Zim1 }) = consTetromino Zim2 tetrominoLocale thisTet
+rotateTetromino' thisTet@(Tetromino { shape = Zim2 }) = consTetromino Zim1 tetrominoLocale thisTet
 
 --Determines if shift is valid, then performs it if so
 --Takes a tetromino, an inicated shift and the environment, returns the tetromino at the new location
@@ -82,7 +105,7 @@ shiftTetromino :: Tetromino -> Shift -> Environment -> Tetromino
 shiftTetromino' :: Tetromino -> Shift -> Tetromino
 
 localeFree :: Tetromino -> Environment -> Bool
-localeFree  thisTet thistGame = all (tileFree) (tileLocale tiles thisTet) (thisGame)
+localeFree  thisTet thistGame = all tileFree (tileLocale tiles thisTet) thisGame
 
 withinBounds :: Tetromino -> Bool
-withinBounds thisTet = all (tileInBounds) (tiles thisTet)
+withinBounds thisTet = all tileInBounds (tiles thisTet)

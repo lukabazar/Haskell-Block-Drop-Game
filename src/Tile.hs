@@ -77,6 +77,7 @@ tileInBounds thisTile =
                         in ( thisX >= 0
                              && thisX <= 9
                              && thisY >=0
+                             && thisY <= 21
                            )
 
 
