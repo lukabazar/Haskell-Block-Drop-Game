@@ -11,6 +11,7 @@ module Tile
         , wellOffset
         , paintTile
         , shiftTile
+        , tileInBounds
         ) where
 
 --Locals
@@ -58,3 +59,28 @@ shiftTile ShiftLeft  thisTile = thisTile { tileLocale = (flip (-) 1 *** id)
 shiftTile ShiftRight thisTile = thisTile { tileLocale = ((+) 1 *** id)
                                                   $ tileLocale thisTile
                                          }
+
+
+--Pulls tiles inexorably downward
+gravitate :: Tile -> Environment -> Int -> Tile
+gravitate thisTile _ 0 = thisTile
+gravitate thisTile thisGame acc = gravitate tile { tileLocale = (id *** flip (-) 1)
+                                                                $ tileLocale thisTile
+                                                 } thisGame (acc - 1)
+
+--Check if tile is within bounds
+tileInBounds :: Tile -> Bool
+tileInBounds thisTile = 
+                        let thisX = fst tileLocale thisTile
+                            thisY = snd tileLocale thisTile
+
+                        in ( thisX >= 0
+                             && thisX <= 9
+                             && thisY >=0
+                             && thisY <= 21
+                           )
+
+
+--Check if a Coord is occupied
+tileFree :: Coord -> Environment -> Bool
+tileFree loc thisGame = any ((/=) loc . tileLocale) $ tileScape thisGame
