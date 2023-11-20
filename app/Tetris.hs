@@ -28,8 +28,8 @@ attemptClear thisGame =
   let lainTiles = tileScape thisGame
       --Find full rows organize by y
       fullRows = [(snd . tileLocale . head) row
-                    | row <- groupBy ((==) 'on' (snd . tileLocale))
-                           $ sortBy (compare 'on' (snd . tileLocale)) lainTiles
+                    | row <- groupBy ((==) `on` (snd . tileLocale))
+                           $ sortBy (compare `on` (snd . tileLocale)) lainTiles
                   , length row == 10
                  ]
       --If no full rows go above well
@@ -43,7 +43,7 @@ attemptClear thisGame =
                           then gravitate thisTile thisGame clearedRows
                           else thisTile
                         | thisTile <- filter (\b -> (snd . tileLocale) b
-                                                      'notElem' fullRows) lainTiles]
+                                                      `notElem` fullRows) lainTiles]
      , gameScore = gameScore thisGame + clearedRows
               }
 
@@ -63,7 +63,7 @@ nextFrame _ thisGame = let fallingTiles = map tileLocale $ tiles $ currentTetrom
                            lainTiles = map (( id *** (+) 1) . tileLocale) $ tileScape thisGame
                        --Determined by whether freeze timer has hit 0
                        in case ( freezeTimer thisGame <= 0
-                                , any ((== 0) . snd) fallingTiles || or ((==) <$> fallingTiles <*> frozenTiles)
+                                , any ((== 0) . snd) fallingTiles || or ((==) <$> fallingTiles <*> lainTiles) -- was freezeTiles (Can't be sure this is the correct replacement)
                                 ) of
                               (True,True)   -> attemptClear' thisGame
                               (False,True)  -> thisGame { freezeTimer = freezeTimer thisGame - 1 }
@@ -85,16 +85,16 @@ handleInput :: Event -> Environment -> Environment
 --Current mapped inputs
 --Up arrow
 handleInput (EventKey (SpecialKey KeyUp) Down _ _) thisGame = 
-      thisGame { currentTetromino = attemptRotate (currentTetromino thisGame) thisGame            }
+      thisGame { currentTetromino = rotateTetromino (currentTetromino thisGame) thisGame            }
 --Down arrow
 handleInput (EventKey (SpecialKey KeyDown) Down _ _) thisGame = 
-      thisGame { currentTetromino = attemptRotate (currentTetromino thisGame) ShiftDown thisGame  }
+      thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) ShiftDown thisGame  }
 --Left arrow
 handleInput (EventKey (SpecialKey KeyLeft) Down _ _) thisGame = 
-      thisGame { currentTetromino = attemptRotate (currentTetromino thisGame) ShiftLeft thisGame  }
+      thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) ShiftLeft thisGame  }
 --Right arrow
 handleInput (EventKey (SpecialKey KeyRight) Down _ _) thisGame = 
-      thisGame { currentTetromino = attemptRotate (currentTetromino thisGame) ShiftRight thisGame }
+      thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) ShiftRight thisGame }
 
 --All non-mapped inputs
 handleInput _ thisGame = thisGame

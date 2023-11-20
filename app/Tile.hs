@@ -12,6 +12,8 @@ module Tile
         , paintTile
         , shiftTile
         , tileInBounds
+        , tileFree
+        , gravitate
         ) where
 
 --Locals
@@ -38,7 +40,7 @@ wellOffset = (-100,-150)
 --Fills tile with color
 --TODO: Update with method using provided bmp image
 paintTile :: Tile -> Picture
-paintTile thisTile = let (x,y) = grid ! tileLocale thisTile
+paintTile thisTile = let (x,y) = well ! tileLocale thisTile -- changed to well grid doesn't exist
                      in Color (tileColor thisTile) $ Polygon [ (x,y)
                                                  , (x + tileSize,y)
                                                  , (x + tileSize,y - tileSize)
@@ -64,15 +66,15 @@ shiftTile ShiftRight thisTile = thisTile { tileLocale = ((+) 1 *** id)
 --Pulls tiles inexorably downward
 gravitate :: Tile -> Environment -> Int -> Tile
 gravitate thisTile _ 0 = thisTile
-gravitate thisTile thisGame acc = gravitate tile { tileLocale = (id *** flip (-) 1)
+gravitate thisTile thisGame acc = gravitate thisTile { tileLocale = (id *** flip (-) 1)
                                                                 $ tileLocale thisTile
                                                  } thisGame (acc - 1)
 
 --Check if tile is within bounds
 tileInBounds :: Tile -> Bool
 tileInBounds thisTile = 
-                        let thisX = fst tileLocale thisTile
-                            thisY = snd tileLocale thisTile
+                        let thisX = fst (tileLocale thisTile)
+                            thisY = snd (tileLocale thisTile)
 
                         in ( thisX >= 0
                              && thisX <= 9

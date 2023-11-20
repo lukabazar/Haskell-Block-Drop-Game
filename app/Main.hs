@@ -1,6 +1,9 @@
-module Main where   
+module Main where
 
+import Graphics.Gloss
 import Tetris
+import World
+import Interior
 
 main :: IO ()
 main = getTetroBag >>= \tetroBag ->
