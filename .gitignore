@@ -2,3 +2,4 @@ dist-newstyle/
 cabal.project.local*
 stack.yaml*
 Tetris.cabal
+CHANGELOG.md
