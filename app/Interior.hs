@@ -111,7 +111,11 @@ shiftTetromino thisTet thisShift thisGame = let tempTet = shiftTetromino' thisTe
 --Helper to perform actual shift
 --After the primary confirms the move is legal, takes the tetromino and shift and performs it
 shiftTetromino' :: Tetromino -> Shift -> Tetromino
-shiftTetromino' = undefined
+shiftTetromino' thisTet thisShift
+        | thisShift == ShiftDown = consTetromino (shape thisTet) (fst (tetrominoLocale thisTet), snd (tetrominoLocale thisTet) - 1)
+        | thisShift == ShiftLeft = consTetromino (shape thisTet) (fst (tetrominoLocale thisTet) - 1, snd (tetrominoLocale thisTet))
+        | thisShift == ShiftRight = consTetromino (shape thisTet) (fst (tetrominoLocale thisTet) + 1, snd (tetrominoLocale thisTet))
+        | otherwise = thisTet -- return the original tetromino
 
 localeFree :: Tetromino -> Environment -> Bool
 localeFree thisTet thisGame = localeFree' (tiles thisTet) thisGame
