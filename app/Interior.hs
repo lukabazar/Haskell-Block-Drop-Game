@@ -114,8 +114,12 @@ shiftTetromino' :: Tetromino -> Shift -> Tetromino
 shiftTetromino' = undefined
 
 localeFree :: Tetromino -> Environment -> Bool
-localeFree = undefined -- below implementation didn't work, not sure whats wrong, commenting out for now so can build
---localeFree thisTet thistGame = all tileFree (tileLocale tiles thisTet) thisGame
+localeFree thisTet thisGame = localeFree' (tiles thisTet) thisGame
+
+localeFree' :: [Tile] -> Environment -> Bool
+localeFree' [] thisGame = True
+localeFree' tiles thisGame = tileFree (tileLocale (head tiles)) thisGame && localeFree' (tail tiles) thisGame
+
 
 withinBounds :: Tetromino -> Bool
 withinBounds thisTet = all tileInBounds (tiles thisTet)
