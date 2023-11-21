@@ -8,6 +8,8 @@ Module holds all datatypes and Environment functions for Tetris project
 
 module World where
 
+import Interior
+
 import Control.Applicative  ((<$>))
 import Control.Arrow        ((***))
 import Control.Monad        (liftM)
@@ -235,7 +237,7 @@ getTetroBag = map intToType
                   | n == 6 = Zim1
 
 newGame :: [TetroShape] -> Environment
-newGame tetroBag = Environment { currentTetromino = newTetromino tetroBag
+newGame tetroBag = Environment { currentTetromino = nextTetromino tetroBag
                                 , tetrominoQueue  = tetroBag
                                 , tileScape       = []
                                 , gameScore       = 0
