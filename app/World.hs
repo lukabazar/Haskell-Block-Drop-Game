@@ -235,8 +235,8 @@ getTetroBag = map intToType
                   | n == 6 = Zim1
 
 newGame :: [TetroShape] -> Environment
-newGame tetroBag = Environment { currentTetromino = consTetromino(head tetroBag) spawnLocale
-                                , tetrominoQueue  = tail tetroBag
+newGame tetroBag = Environment { currentTetromino = newTetromino tetroBag
+                                , tetrominoQueue  = tetroBag
                                 , tileScape       = []
                                 , gameScore       = 0
                                 , freezeTimer     = freezeDelay
