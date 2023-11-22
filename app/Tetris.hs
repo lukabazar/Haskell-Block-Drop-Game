@@ -75,7 +75,7 @@ nextFrame _ thisGame = let fallingTiles = map tileLocale $ tiles $ currentTetrom
             attemptClear' thisGame = let (t,ts) = nextTetromino $ tetrominoQueue thisGame
                              in attemptClear
                                 thisGame { currentTetromino = t
-                                          , tileScape       = tiles (currentTetromino thisGame)
+                                          , tileScape       = tiles (currentTetromino thisGame) ++ tileScape thisGame
                                           , tetrominoQueue  = ts
                                           , freezeTimer     = freezeDelay
                                          }

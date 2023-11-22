@@ -40,8 +40,8 @@ nextTetromino (Zim1:ts) = (consTetromino Zim1 spawnLocale, ts)
 
 --Generate image of game
 paintGame :: Environment -> Picture
-paintGame e = pictures (paintTetromino (currentTetromino  e) : tiles)
-        where tiles = fmap paintTile (tileScape e)
+paintGame thisGame = pictures (paintTetromino (currentTetromino thisGame) : tiles)
+        where tiles = fmap paintTile (tileScape thisGame)
 
 --Generate image of tetromino
 paintTetromino :: Tetromino -> Picture
@@ -119,7 +119,7 @@ shiftTetromino' thisTet thisShift
         | otherwise = thisTet -- return the original tetromino
 
 localeFree :: Tetromino -> Environment -> Bool
-localeFree thisTet thisGame = localeFree' (tiles thisTet) thisGame
+localeFree thisTet thisGame = null (tileScape thisGame) || localeFree' (tiles thisTet) thisGame
 
 localeFree' :: [Tile] -> Environment -> Bool
 localeFree' [] thisGame = True
