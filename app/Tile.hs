@@ -13,7 +13,7 @@ module Tile
         , shiftTile
         , tileInBounds
         , tileFree
-        , gravitate
+        , gravitateTile
         ) where
 
 --Locals
@@ -64,9 +64,9 @@ shiftTile ShiftRight thisTile = thisTile { tileLocale = ((+) 1 *** id)
 
 
 --Pulls tiles inexorably downward
-gravitate :: Tile -> Environment -> Int -> Tile
-gravitate thisTile _ 0 = thisTile
-gravitate thisTile thisGame acc = gravitate thisTile { tileLocale = (id *** flip (-) 1)
+gravitateTile :: Tile -> Environment -> Int -> Tile
+gravitateTile thisTile _ 0 = thisTile
+gravitateTile thisTile thisGame acc = gravitateTile thisTile { tileLocale = (id *** flip (-) 1)
                                                                 $ tileLocale thisTile
                                                  } thisGame (acc - 1)
 

@@ -40,7 +40,7 @@ attemptClear thisGame =
       clearedRows = length fullRows
   --Clear rows and gravitate appropriately
   in thisGame { tileScape = [if lowestRow <= (snd. tileLocale) thisTile
-                          then gravitate thisTile thisGame clearedRows
+                          then gravitateTile thisTile thisGame clearedRows
                           else thisTile
                         | thisTile <- filter (\b -> (snd . tileLocale) b
                                                       `notElem` fullRows) lainTiles]
@@ -54,7 +54,7 @@ nextFrame :: Float -> Environment -> Environment
 
 --Loop every 60 steps
 nextFrame _ thisGame@(Environment { gameStep = 59 }) =
-    thisGame { currentTetromino = shiftTetromino( currentTetromino thisGame) ShiftDown thisGame
+    thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) ShiftDown thisGame
               , freezeTimer     = freezeDelay
               , gameStep        = 0
              }

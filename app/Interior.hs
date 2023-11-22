@@ -14,7 +14,7 @@ module Interior
         , spawnTetromino
         , rotateTetromino
         , shiftTetromino
-        , gravitate
+        , gravitateTile
         ) where
 
 --Locals
