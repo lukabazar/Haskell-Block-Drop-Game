@@ -3,3 +3,4 @@ cabal.project.local*
 stack.yaml*
 Tetris.cabal
 CHANGELOG.md
+.vscode/*
