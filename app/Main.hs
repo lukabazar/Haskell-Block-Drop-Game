@@ -38,7 +38,7 @@ main = do
              )
         black
         60
-        (newGame tetroBag [red, orange, yellow, cyan, blue, green, violet])
+        (newGame tetroBag [red, cyan, blue, yellow, green, orange, violet])
         (paintGame background)
         handleInput
         nextFrame

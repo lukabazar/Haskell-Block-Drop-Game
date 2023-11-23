@@ -40,13 +40,14 @@ nextTetromino (Zim1:ts) = (consTetromino Zim1 spawnLocale, ts)
 
 --Generate image of game
 paintGame :: Picture -> Environment -> Picture
-paintGame background thisGame = pictures (background : paintTetromino thisGame (currentTetromino thisGame) ++ tiles)
+paintGame background thisGame = pictures ([background] ++ tetromino ++ tiles ++ [lines])
         where tiles = fmap (paintTile thisGame) (tileScape thisGame)
+              tetromino = paintTetromino thisGame (currentTetromino thisGame)
+              lines = color white (translate (-140) (-290) (scale 0.125 0.125 (text ("Lines: " ++ show (gameScore thisGame)))))
 
 --Generate image of tetromino
 paintTetromino :: Environment -> Tetromino -> [Picture]
-paintTetromino thisGame t = piece
-        where piece = fmap (paintTile thisGame) (tiles t)
+paintTetromino thisGame t = fmap (paintTile thisGame) (tiles t)
 
 --Attempt to spawn at drop point
 spawnTetromino :: Environment -> Environment
