@@ -39,14 +39,14 @@ nextTetromino (Tam1:ts) = (consTetromino Tam1 spawnLocale, ts)
 nextTetromino (Zim1:ts) = (consTetromino Zim1 spawnLocale, ts)
 
 --Generate image of game
-paintGame :: Environment -> Picture
-paintGame thisGame = pictures (paintTetromino (currentTetromino thisGame) : tiles)
-        where tiles = fmap paintTile (tileScape thisGame)
+paintGame :: Picture -> Environment -> Picture
+paintGame background thisGame = pictures (background : paintTetromino thisGame (currentTetromino thisGame) ++ tiles)
+        where tiles = fmap (paintTile thisGame) (tileScape thisGame)
 
 --Generate image of tetromino
-paintTetromino :: Tetromino -> Picture
-paintTetromino t = pictures piece
-        where piece = fmap paintTile (tiles t)
+paintTetromino :: Environment -> Tetromino -> [Picture]
+paintTetromino thisGame t = piece
+        where piece = fmap (paintTile thisGame) (tiles t)
 
 --Attempt to spawn at drop point
 spawnTetromino :: Environment -> Environment

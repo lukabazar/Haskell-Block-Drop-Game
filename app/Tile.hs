@@ -6,7 +6,7 @@ Fall 2023
 Module for Tile functions and datatypes
 -}
 
-module Tile 
+module Tile
         ( well
         , wellOffset
         , paintTile
@@ -21,7 +21,7 @@ import World
 
 import Control.Arrow  ((***))
 import Data.Array     (Array,(!),array)
-import Graphics.Gloss (Picture(..),Point)
+import Graphics.Gloss (Picture(..),Point, translate, Color, red, orange, cyan, blue, green, yellow)
 
 --A 2d array of coordinates representing a 10x22 well
 well :: Array Coord Point
@@ -38,14 +38,20 @@ wellOffset :: Point
 wellOffset = (-100,-150)
 
 --Fills tile with color
---TODO: Update with method using provided bmp image
-paintTile :: Tile -> Picture
-paintTile thisTile = let (x,y) = well ! tileLocale thisTile -- changed to well grid doesn't exist
-                     in Color (tileColor thisTile) $ Polygon [ (x,y)
-                                                 , (x + tileSize,y)
-                                                 , (x + tileSize,y - tileSize)
-                                                 , (x,y - tileSize)
-                                                 ]
+paintTile :: Environment -> Tile -> Picture
+paintTile thisGame thisTile = let (x,y) = well ! tileLocale thisTile -- changed to well grid doesn't exist
+                              in translate x y (blockImgs thisGame !! findIndex (tileColor thisTile))
+
+-- Finds index of color for BMP images
+findIndex :: Color -> Int
+findIndex color
+      | color == red = 0
+      | color == orange = 1
+      | color == yellow = 2
+      | color == cyan = 3
+      | color == blue = 4
+      | color == green = 5
+      | otherwise = 6
 
 --Shifts a tile in a given direction through flip
 shiftTile :: Shift -> Tile -> Tile
@@ -72,7 +78,7 @@ gravitateTile thisTile thisGame acc = gravitateTile thisTile { tileLocale = (id 
 
 --Check if tile is within bounds
 tileInBounds :: Tile -> Bool
-tileInBounds thisTile = 
+tileInBounds thisTile =
                         let thisX = fst (tileLocale thisTile)
                             thisY = snd (tileLocale thisTile)
 

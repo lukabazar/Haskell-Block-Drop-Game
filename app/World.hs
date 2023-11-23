@@ -19,14 +19,15 @@ import Graphics.Gloss       (Color
                             ,cyan
                             ,blue
                             ,green
-                            ,violet)
+                            ,violet
+                            ,Picture (Pictures))
 import System.Random        (getStdGen
                             ,randomRs)
 
 --Tiles have coordinates in the well and a color
 data Tile = Tile { tileLocale :: Coord
-                    , tileColor :: Color
-                    }
+                 , tileColor  :: Color
+                 }
 
 --Tile equivalence is coordinate based
 instance Eq Tile where
@@ -211,12 +212,12 @@ data Environment = Environment { currentTetromino :: Tetromino
                                 , freezeTimer     :: Int
                                 , gameStep        :: Int
                                 , gameIsOver      :: Bool
+                                , blockImgs       :: [Picture]
                                 }
 
 --Delay before freezing stopped tetromino
 freezeDelay :: Int
 freezeDelay = 30
-
 
 spawnLocale :: Coord
 spawnLocale = (4, 20)
@@ -232,14 +233,15 @@ getTetroBag = map intToType
                   | n == 3 = Obi
                   | n == 4 = Sal1
                   | n == 5 = Tam1
-                  | n == 6 = Zim1
+                  | n == 6 = Zim1                 
 
-newGame :: [TetroShape] -> Environment
-newGame tetroBag = Environment { currentTetromino = consTetromino (head tetroBag) spawnLocale
-                                , tetrominoQueue  = tail tetroBag
-                                , tileScape       = []
-                                , gameScore       = 0
-                                , freezeTimer     = freezeDelay
-                                , gameStep        = 0
-                                , gameIsOver      = False
-                                }
+newGame :: [TetroShape] -> [Picture] -> Environment
+newGame tetroBag cs =
+      Environment { currentTetromino = consTetromino (head tetroBag) spawnLocale
+                  , tetrominoQueue  = tail tetroBag
+                  , tileScape       = []
+                  , gameScore       = 0
+                  , freezeTimer     = freezeDelay
+                  , gameStep        = 0
+                  , gameIsOver      = False
+                  , blockImgs       = cs}
