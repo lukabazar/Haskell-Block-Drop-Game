@@ -17,6 +17,7 @@ extra-source-files:
     resources/violet.bmp
     resources/yellow.bmp
     resources/background.bmp 
+    resources/overlay.bmp
 -}
 
 main :: IO ()
