@@ -39,11 +39,12 @@ nextTetromino (Tam1:ts) = (consTetromino Tam1 spawnLocale, ts)
 nextTetromino (Zim1:ts) = (consTetromino Zim1 spawnLocale, ts)
 
 --Generate image of game
-paintGame :: Picture -> Environment -> Picture
-paintGame background thisGame = pictures ([background] ++ tetromino ++ tiles ++ [lines])
+paintGame :: Picture -> Picture -> Environment -> Picture
+paintGame background overlay thisGame = pictures ([background] ++ tetromino ++ tiles ++ [lines] ++ [bar])
         where tiles = fmap (paintTile thisGame) (tileScape thisGame)
               tetromino = paintTetromino thisGame (currentTetromino thisGame)
               lines = color white (translate (-140) (-290) (scale 0.125 0.125 (text ("Lines: " ++ show (gameScore thisGame)))))
+              bar = translate 0 270 overlay
 
 --Generate image of tetromino
 paintTetromino :: Environment -> Tetromino -> [Picture]

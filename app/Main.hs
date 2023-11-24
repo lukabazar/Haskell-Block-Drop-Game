@@ -4,7 +4,6 @@ import Graphics.Gloss
 import Tetris
 import World
 import Interior
-import Graphics.Gloss.Interface.IO.Game (playIO)
 
 -- To build with bmps add these to the cabal file
 -- (assuming the cabal file is in the same directory as resources)
@@ -23,6 +22,7 @@ extra-source-files:
 main :: IO ()
 main = do
        background <- loadBMP "resources/background.bmp"
+       overlay <- loadBMP "resources/overlay.bmp"
        red <- loadBMP "resources/red.bmp"
        orange <- loadBMP "resources/orange.bmp"
        yellow <- loadBMP "resources/yellow.bmp"
@@ -39,7 +39,7 @@ main = do
         black
         60
         (newGame tetroBag [red, cyan, blue, yellow, green, orange, violet])
-        (paintGame background)
+        (paintGame background overlay)
         handleInput
         nextFrame
     

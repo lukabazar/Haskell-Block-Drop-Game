@@ -50,7 +50,7 @@ attemptClear thisGame =
 --Generates next frame
 nextFrame :: Float -> Environment -> Environment
 --TODO: Check Game Over first, freeze or clear game environment
---nextFrame _thisGame@(Environment { gameIsOver = True}) = 
+--nextFrame _ thisGame@(Environment { gameIsOver = True}) = 
 
 --Loop every 60 steps
 nextFrame _ thisGame@(Environment { gameStep = 59 }) =
