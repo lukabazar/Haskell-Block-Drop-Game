@@ -39,8 +39,11 @@ wellOffset = (-100,-150)
 
 --Fills tile with color
 paintTile :: Environment -> Tile -> Picture
-paintTile thisGame thisTile = let (x,y) = well ! tileLocale thisTile -- changed to well grid doesn't exist
-                              in translate x y (blockImgs thisGame !! findIndex (tileColor thisTile))
+paintTile thisGame thisTile = let block = blockImgs thisGame !! findIndex (tileColor thisTile)
+                              in
+                              if tileInBounds thisTile
+                              then uncurry translate (well ! tileLocale thisTile) block
+                              else Circle 0
 
 -- Finds index of color for BMP images
 findIndex :: Color -> Int
