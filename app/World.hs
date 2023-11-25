@@ -202,7 +202,7 @@ consTetromino Zim2 p@(x,y) = Tetromino Zim2 p
 type Coord = (Int,Int)
 
 --Shifts for all movement
-data Shift = ShiftDown | ShiftRight | ShiftLeft
+data Shift = ShiftDown | ShiftRight | ShiftLeft | ShiftNeutral
                 deriving(Show,Eq)
 
 data Environment = Environment { currentTetromino :: Tetromino
@@ -213,6 +213,7 @@ data Environment = Environment { currentTetromino :: Tetromino
                                 , gameStep        :: Int
                                 , gameIsOver      :: Bool
                                 , blockImgs       :: [Picture]
+                                , keyHeld         :: Shift
                                 }
 
 --Delay before freezing stopped tetromino
@@ -244,4 +245,5 @@ newGame tetroBag cs =
                   , freezeTimer     = freezeDelay
                   , gameStep        = 0
                   , gameIsOver      = False
-                  , blockImgs       = cs}
+                  , blockImgs       = cs
+                  , keyHeld         = ShiftNeutral}

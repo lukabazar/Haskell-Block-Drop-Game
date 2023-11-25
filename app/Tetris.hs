@@ -52,29 +52,48 @@ nextFrame :: Float -> Environment -> Environment
 --TODO: Check Game Over first, freeze or clear game environment
 --nextFrame _ thisGame@(Environment { gameIsOver = True}) = 
 
---Loop every 60 steps
-nextFrame _ thisGame@(Environment { gameStep = 59 }) =
-    thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) ShiftDown thisGame
-              , freezeTimer     = freezeDelay
-              , gameStep        = 0
-             }
---Else progress normally
-nextFrame _ thisGame = let fallingTiles = map tileLocale $ tiles $ currentTetromino thisGame
-                           lainTiles = map (( id *** (+) 1) . tileLocale) $ tileScape thisGame
-                       --Determined by whether freeze timer has hit 0
-                       in case ( freezeTimer thisGame <= 0
-                                , any ((== 0) . snd) fallingTiles || or ((==) <$> fallingTiles <*> lainTiles) -- was freezeTiles (Can't be sure this is the correct replacement)
-                                ) of
-                               -- Non-exhaustive pattern (might be related to TODO)     
-                              (True,True)   -> attemptClear' thisGame
-                              (False,True)  -> thisGame { freezeTimer = freezeTimer thisGame - 1 }
-                              (False,_)     -> thisGame { freezeTimer = freezeDelay
-                                                          , gameStep = gameStep thisGame + 1 
-                                                        }
-                              
+--Combined into a single function to allow held keys to work
+nextFrame _ thisGame = let thisStep = gameStep thisGame
+                       --First default
+                       in if thisStep `mod` 10 /= 9
+                             then let fallingTiles = map tileLocale $ tiles $ currentTetromino thisGame
+                                      lainTiles = map (( id *** (+) 1) . tileLocale) $ tileScape thisGame
+                                  --Determined by whether freeze timer has hit 0
+                                  in case ( freezeTimer thisGame <= 0
+                                            , any ((== 0) . snd) fallingTiles || or ((==) <$> fallingTiles <*> lainTiles)
+                                          ) of
+                                          -- Non-exhaustive pattern (might be related to TODO)     
+                                          (True,True)   -> attemptClear' thisGame
+                                          (False,True)  -> thisGame { freezeTimer = freezeTimer thisGame - 1 }
+                                          (False,_)     -> thisGame { freezeTimer = freezeDelay
+                                                                      , gameStep = gameStep thisGame + 1 
+                                                                    }
+                          --Check for reset
+                          else if thisStep == 59
+                                then  thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) ShiftDown thisGame
+                                                 , freezeTimer     = freezeDelay
+                                                 , gameStep        = 0
+                                               }
+                               -- Finally for held keys
+                               else let fallingTiles = map tileLocale $ tiles $ currentTetromino thisGame
+                                        lainTiles = map (( id *** (+) 1) . tileLocale) $ tileScape thisGame
+                                    --Determined by whether freeze timer has hit 0
+                                    in case ( freezeTimer thisGame <= 0
+                                              , any ((== 0) . snd) fallingTiles || or ((==) <$> fallingTiles <*> lainTiles)
+                                            ) of
+                                            -- Non-exhaustive pattern (might be related to TODO)     
+                                            (True,True)   -> attemptClear' thisGame
+                                            (False,True)  -> thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) (keyHeld thisGame) thisGame
+                                                                        , freezeTimer = freezeTimer thisGame - 1
+                                                                      }
+                                            (False,_)     -> thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) (keyHeld thisGame) thisGame
+                                                                        , freezeTimer = freezeDelay
+                                                                        , gameStep = gameStep thisGame + 1 
+                                                                      }
+
 --Place and freeze current tetromino and get next one
-      where
-            attemptClear' thisGame = let (t,ts) = nextTetromino $ tetrominoQueue thisGame
+attemptClear' :: Environment -> Environment
+attemptClear' thisGame = let (t,ts) = nextTetromino $ tetrominoQueue thisGame
                              in attemptClear
                                 thisGame { currentTetromino = t
                                           , tileScape       = tiles (currentTetromino thisGame) ++ tileScape thisGame
@@ -90,13 +109,19 @@ handleInput (EventKey (SpecialKey KeyUp) Down _ _) thisGame =
       thisGame { currentTetromino = rotateTetromino (currentTetromino thisGame) thisGame            }
 --Down arrow
 handleInput (EventKey (SpecialKey KeyDown) Down _ _) thisGame = 
-      thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) ShiftDown thisGame  }
+      thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) ShiftDown thisGame  
+                 , keyHeld        = ShiftDown }
+handleInput (EventKey (SpecialKey KeyDown) Up _ _) thisGame = thisGame { keyHeld = ShiftNeutral }
 --Left arrow
 handleInput (EventKey (SpecialKey KeyLeft) Down _ _) thisGame = 
-      thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) ShiftLeft thisGame  }
+      thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) ShiftLeft thisGame    
+                 , keyHeld        = ShiftLeft }
+handleInput (EventKey (SpecialKey KeyLeft) Up _ _) thisGame = thisGame { keyHeld = ShiftNeutral }
 --Right arrow
 handleInput (EventKey (SpecialKey KeyRight) Down _ _) thisGame = 
-      thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) ShiftRight thisGame }
+      thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) ShiftRight thisGame   
+                 , keyHeld        = ShiftRight }
+handleInput (EventKey (SpecialKey KeyRight) Up _ _) thisGame = thisGame { keyHeld = ShiftNeutral }
 
 --All non-mapped inputs
 handleInput _ thisGame = thisGame
