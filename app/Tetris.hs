@@ -50,7 +50,7 @@ attemptClear thisGame =
 --Generates next frame
 nextFrame :: Float -> Environment -> Environment
 --TODO: Check Game Over first, freeze or clear game environment
---nextFrame _thisGame@(Environment { gameIsOver = True}) = 
+--nextFrame _ thisGame@(Environment { gameIsOver = True}) = 
 
 --Loop every 60 steps
 nextFrame _ thisGame@(Environment { gameStep = 59 }) =
@@ -65,11 +65,13 @@ nextFrame _ thisGame = let fallingTiles = map tileLocale $ tiles $ currentTetrom
                        in case ( freezeTimer thisGame <= 0
                                 , any ((== 0) . snd) fallingTiles || or ((==) <$> fallingTiles <*> lainTiles) -- was freezeTiles (Can't be sure this is the correct replacement)
                                 ) of
+                               -- Non-exhaustive pattern (might be related to TODO)     
                               (True,True)   -> attemptClear' thisGame
                               (False,True)  -> thisGame { freezeTimer = freezeTimer thisGame - 1 }
                               (False,_)     -> thisGame { freezeTimer = freezeDelay
                                                           , gameStep = gameStep thisGame + 1 
                                                         }
+                              
 --Place and freeze current tetromino and get next one
       where
             attemptClear' thisGame = let (t,ts) = nextTetromino $ tetrominoQueue thisGame
