@@ -43,7 +43,7 @@ paintGame :: Picture -> Picture -> Environment -> Picture
 paintGame background overlay thisGame = pictures ([background] ++ tetromino ++ tiles ++ [lines] ++ [bar])
         where tiles = fmap (paintTile thisGame) (tileScape thisGame)
               tetromino = paintTetromino thisGame (currentTetromino thisGame)
-              lines = color white (translate (-140) (-290) (scale 0.125 0.125 (text ("Lines: " ++ show (gameScore thisGame)))))
+              lines = color white (translate (-140) (-290) (scale 0.125 0.125 (text ("Score: " ++ show (gameScore thisGame)))))
               bar = translate 0 270 overlay
 
 --Generate image of tetromino

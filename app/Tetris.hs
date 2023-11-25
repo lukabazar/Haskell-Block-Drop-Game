@@ -61,13 +61,13 @@ nextFrame _ thisGame = let thisStep = gameStep thisGame
                                   --Determined by whether freeze timer has hit 0
                                   in case ( freezeTimer thisGame <= 0
                                             , any ((== 0) . snd) fallingTiles || or ((==) <$> fallingTiles <*> lainTiles)
-                                          ) of
-                                          -- Non-exhaustive pattern (might be related to TODO)     
+                                          ) of     
                                           (True,True)   -> attemptClear' thisGame
                                           (False,True)  -> thisGame { freezeTimer = freezeTimer thisGame - 1 }
                                           (False,_)     -> thisGame { freezeTimer = freezeDelay
                                                                       , gameStep = gameStep thisGame + 1 
                                                                     }
+                                          (True, _)     -> thisGame 
                           --Check for reset
                           else if thisStep == 59
                                 then  thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) ShiftDown thisGame
@@ -80,8 +80,7 @@ nextFrame _ thisGame = let thisStep = gameStep thisGame
                                --Determined by whether freeze timer has hit 0
                                in case ( freezeTimer thisGame <= 0
                                          , any ((== 0) . snd) fallingTiles || or ((==) <$> fallingTiles <*> lainTiles)
-                                       ) of
-                                       -- Non-exhaustive pattern (might be related to TODO)     
+                                       ) of     
                                        (True,True)   -> attemptClear' thisGame
                                        (False,True)  -> thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) (keyHeld thisGame) thisGame
                                                                    , freezeTimer = freezeTimer thisGame - 1
@@ -90,6 +89,7 @@ nextFrame _ thisGame = let thisStep = gameStep thisGame
                                                                    , freezeTimer = freezeDelay
                                                                    , gameStep = gameStep thisGame + 1 
                                                                  }
+                                       (True, _)     -> thisGame 
 
 --Place and freeze current tetromino and get next one
 attemptClear' :: Environment -> Environment
