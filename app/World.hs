@@ -20,7 +20,7 @@ import Graphics.Gloss       (Color
                             ,blue
                             ,green
                             ,violet
-                            ,Picture (Pictures))
+                            ,Picture (Pictures), color, white, translate, scale, text)
 import System.Random        (getStdGen
                             ,randomRs)
 
@@ -212,6 +212,7 @@ data Environment = Environment { currentTetromino :: Tetromino
                                 , freezeTimer     :: Int
                                 , gameStep        :: Int
                                 , gameIsOver      :: Bool
+                                , gameOver        :: Picture
                                 , blockImgs       :: [Picture]
                                 , keyHeld         :: Shift
                                 }
@@ -245,5 +246,6 @@ newGame tetroBag cs =
                   , freezeTimer     = freezeDelay
                   , gameStep        = 0
                   , gameIsOver      = False
+                  , gameOver        = color white (translate 0 0 (scale 0.125 0.125 (text "")))
                   , blockImgs       = cs
                   , keyHeld         = ShiftNeutral}
