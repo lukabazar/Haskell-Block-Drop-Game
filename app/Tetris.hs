@@ -55,7 +55,7 @@ nextFrame :: Float -> Environment -> Environment
 --Combined into a single function to allow held keys to work
 nextFrame _ thisGame = let thisStep = gameStep thisGame
                        --First default
-                       in if thisStep `mod` 10 /= 9
+                       in if thisStep `mod` 6 /= 0 && thisStep /= 59
                              then let fallingTiles = map tileLocale $ tiles $ currentTetromino thisGame
                                       lainTiles = map (( id *** (+) 1) . tileLocale) $ tileScape thisGame
                                   --Determined by whether freeze timer has hit 0
@@ -74,22 +74,22 @@ nextFrame _ thisGame = let thisStep = gameStep thisGame
                                                  , freezeTimer     = freezeDelay
                                                  , gameStep        = 0
                                                }
-                               -- Finally for held keys
-                               else let fallingTiles = map tileLocale $ tiles $ currentTetromino thisGame
-                                        lainTiles = map (( id *** (+) 1) . tileLocale) $ tileScape thisGame
-                                    --Determined by whether freeze timer has hit 0
-                                    in case ( freezeTimer thisGame <= 0
-                                              , any ((== 0) . snd) fallingTiles || or ((==) <$> fallingTiles <*> lainTiles)
-                                            ) of
-                                            -- Non-exhaustive pattern (might be related to TODO)     
-                                            (True,True)   -> attemptClear' thisGame
-                                            (False,True)  -> thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) (keyHeld thisGame) thisGame
-                                                                        , freezeTimer = freezeTimer thisGame - 1
-                                                                      }
-                                            (False,_)     -> thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) (keyHeld thisGame) thisGame
-                                                                        , freezeTimer = freezeDelay
-                                                                        , gameStep = gameStep thisGame + 1 
-                                                                      }
+                          -- Finally for held keys
+                          else let fallingTiles = map tileLocale $ tiles $ currentTetromino thisGame
+                                   lainTiles = map (( id *** (+) 1) . tileLocale) $ tileScape thisGame
+                               --Determined by whether freeze timer has hit 0
+                               in case ( freezeTimer thisGame <= 0
+                                         , any ((== 0) . snd) fallingTiles || or ((==) <$> fallingTiles <*> lainTiles)
+                                       ) of
+                                       -- Non-exhaustive pattern (might be related to TODO)     
+                                       (True,True)   -> attemptClear' thisGame
+                                       (False,True)  -> thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) (keyHeld thisGame) thisGame
+                                                                   , freezeTimer = freezeTimer thisGame - 1
+                                                                 }
+                                       (False,_)     -> thisGame { currentTetromino = shiftTetromino (currentTetromino thisGame) (keyHeld thisGame) thisGame
+                                                                   , freezeTimer = freezeDelay
+                                                                   , gameStep = gameStep thisGame + 1 
+                                                                 }
 
 --Place and freeze current tetromino and get next one
 attemptClear' :: Environment -> Environment
