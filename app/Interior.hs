@@ -118,13 +118,15 @@ shiftTetromino' thisTet thisShift
         | thisShift == ShiftRight = consTetromino (shape thisTet) (fst (tetrominoLocale thisTet) + 1, snd (tetrominoLocale thisTet))
         | otherwise = thisTet -- return the original tetromino
 
-localeFree :: Tetromino -> Environment -> Bool
+{- localeFree :: Tetromino -> Environment -> Bool
 localeFree thisTet thisGame = null (tileScape thisGame) || localeFree' (tiles thisTet) thisGame
 
 localeFree' :: [Tile] -> Environment -> Bool
 localeFree' [] thisGame = True
-localeFree' tiles thisGame = tileFree (tileLocale (head tiles)) thisGame && localeFree' (tail tiles) thisGame
+localeFree' tiles thisGame = tileFree (tileLocale (head tiles)) thisGame && localeFree' (tail tiles) thisGame -}
 
+localeFree :: Tetromino -> Environment -> Bool
+localeFree thisTet thisGame = not $ any (\t -> any (t == ) (tileScape thisGame)) (tiles thisTet)
 
 withinBounds :: Tetromino -> Bool
 withinBounds thisTet = all tileInBounds (tiles thisTet)

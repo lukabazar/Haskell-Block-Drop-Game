@@ -44,7 +44,7 @@ attemptClear thisGame =
                           else thisTile
                         | thisTile <- filter (\b -> (snd . tileLocale) b
                                                       `notElem` fullRows) lainTiles]
-     , gameScore = gameScore thisGame + clearedRows
+     , gameScore = gameScore thisGame + 50 * 2 ^ clearedRows
               }
 
 --Generates next frame
