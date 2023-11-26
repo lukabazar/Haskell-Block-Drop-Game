@@ -2,10 +2,6 @@
 Group 12
 CS357
 Fall 2023
-
-Module for game behavior and input responses
-TODO: Implement Game Over, Levels, Pause
-TODO: Possibly, implement hold piece
 -}
 
 module Tetris where
@@ -49,7 +45,7 @@ attemptClear thisGame =
 
 --Generates next frame
 nextFrame :: Float -> Environment -> Environment
---TODO: Check Game Over first, freeze or clear game environment
+--Check game over
 nextFrame _ thisGame@(Environment { gameIsOver = True }) = thisGame {tileScape = [], 
                                                                     gameScore = 0, 
                                                                     gameOver = color white (translate (-60) 30 (scale 0.125 0.125 (text "GAME OVER")))}

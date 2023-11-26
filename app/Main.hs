@@ -5,22 +5,6 @@ import Tetris
 import World
 import Interior
 
--- To build with bmps add these to the cabal file
--- (assuming the cabal file is in the same directory as resources)
-{- 
-extra-source-files:
-    resources/blue.bmp
-    resources/cyan.bmp
-    resources/green.bmp
-    resources/orange.bmp
-    resources/red.bmp
-    resources/violet.bmp
-    resources/yellow.bmp
-    resources/background.bmp 
-    resources/overlay.bmp
-    resources/score.bmp
--}
-
 main :: IO ()
 main = do
        background <- loadBMP "resources/background.bmp"

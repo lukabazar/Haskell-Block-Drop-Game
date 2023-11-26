@@ -65,7 +65,6 @@ spawnTetromino thisGame = let (t,ts) = nextTetromino $ tetrominoQueue thisGame
 
 --Determines if rotation is valid then performs it if so
 --Takes the tetromino and environment, returns the rotated tetromino
---Possible improvement: Check piece can be shifted to make rotation possible
 rotateTetromino :: Tetromino -> Environment -> Tetromino
 rotateTetromino thisTet thisGame = let tempTet = rotateTetromino' thisTet
                                    --Check bounds and tileScape
@@ -120,13 +119,6 @@ shiftTetromino' thisTet thisShift
         | thisShift == ShiftLeft = consTetromino (shape thisTet) (fst (tetrominoLocale thisTet) - 1, snd (tetrominoLocale thisTet))
         | thisShift == ShiftRight = consTetromino (shape thisTet) (fst (tetrominoLocale thisTet) + 1, snd (tetrominoLocale thisTet))
         | otherwise = thisTet -- return the original tetromino
-
-{- localeFree :: Tetromino -> Environment -> Bool
-localeFree thisTet thisGame = null (tileScape thisGame) || localeFree' (tiles thisTet) thisGame
-
-localeFree' :: [Tile] -> Environment -> Bool
-localeFree' [] thisGame = True
-localeFree' tiles thisGame = tileFree (tileLocale (head tiles)) thisGame && localeFree' (tail tiles) thisGame -}
 
 localeFree :: Tetromino -> Environment -> Bool
 localeFree thisTet thisGame = not $ any (\t -> any (t == ) (tileScape thisGame)) (tiles thisTet)
