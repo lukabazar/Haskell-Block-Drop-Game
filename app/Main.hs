@@ -18,12 +18,14 @@ extra-source-files:
     resources/yellow.bmp
     resources/background.bmp 
     resources/overlay.bmp
+    resources/score.bmp
 -}
 
 main :: IO ()
 main = do
        background <- loadBMP "resources/background.bmp"
        overlay <- loadBMP "resources/overlay.bmp"
+       score <- loadBMP "resources/score.bmp"
        red <- loadBMP "resources/red.bmp"
        orange <- loadBMP "resources/orange.bmp"
        yellow <- loadBMP "resources/yellow.bmp"
@@ -40,7 +42,7 @@ main = do
         black
         60
         (newGame tetroBag [red, cyan, blue, yellow, green, orange, violet])
-        (paintGame background overlay)
+        (paintGame background overlay score)
         handleInput
         nextFrame
     
