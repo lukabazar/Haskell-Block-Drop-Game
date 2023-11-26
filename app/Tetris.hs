@@ -52,7 +52,7 @@ nextFrame :: Float -> Environment -> Environment
 --TODO: Check Game Over first, freeze or clear game environment
 nextFrame _ thisGame@(Environment { gameIsOver = True }) = thisGame {tileScape = [], 
                                                                     gameScore = 0, 
-                                                                    gameOver = color white (translate 0 0 (scale 0.125 0.125 (text "GAME OVER")))}
+                                                                    gameOver = color white (translate (-60) 30 (scale 0.125 0.125 (text "GAME OVER")))}
 
 --Combined into a single function to allow held keys to work
 nextFrame _ thisGame = let thisStep = gameStep thisGame

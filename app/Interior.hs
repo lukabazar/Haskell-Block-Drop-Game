@@ -40,10 +40,10 @@ nextTetromino (Zim1:ts) = (consTetromino Zim1 spawnLocale, ts)
 
 --Generate image of game
 paintGame :: Picture -> Picture -> Environment -> Picture
-paintGame background overlay thisGame = pictures ([background] ++ tetromino ++ tiles ++ [lines] ++ [bar])
+paintGame background overlay thisGame = pictures ([background] ++ tetromino ++ tiles ++ [lines] ++ [bar] ++ [gameOver thisGame])
         where tiles = fmap (paintTile thisGame) (tileScape thisGame)
               tetromino = paintTetromino thisGame (currentTetromino thisGame)
-              lines = color white (translate (-140) (-290) (scale 0.125 0.125 (text ("Score: " ++ show (gameScore thisGame)))))
+              lines = color white (translate (-50) (-190) (scale 0.125 0.125 (text ("Score: " ++ show (gameScore thisGame)))))
               bar = translate 0 270 overlay
 
 --Generate image of tetromino
