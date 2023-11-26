@@ -205,17 +205,17 @@ type Coord = (Int,Int)
 data Shift = ShiftDown | ShiftRight | ShiftLeft | ShiftNeutral
                 deriving(Show,Eq)
 
-data Environment = Environment { currentTetromino :: Tetromino
-                                , tetrominoQueue  :: [TetroShape]
-                                , tileScape       :: [Tile]
-                                , gameScore       :: Int
-                                , freezeTimer     :: Int
-                                , gameStep        :: Int
-                                , gameIsOver      :: Bool
-                                , gameOver        :: Picture
-                                , blockImgs       :: [Picture]
-                                , keyHeld         :: Shift
-                                }
+data Environment = Environment { currentTetromino :: Tetromino,
+                                 tetrominoQueue  :: [TetroShape],
+                                 tileScape       :: [Tile],
+                                 gameScore       :: Int,
+                                 freezeTimer     :: Int,
+                                 gameStep        :: Int,
+                                 gameIsOver      :: Bool,
+                                 gameOver        :: Picture,
+                                 blockImgs       :: [Picture],
+                                 keyHeld         :: Shift
+                               }
 
 --Delay before freezing stopped tetromino
 freezeDelay :: Int

@@ -42,15 +42,15 @@ attemptClear thisGame =
   in thisGame { tileScape = [if lowestRow <= (snd. tileLocale) thisTile
                           then gravitateTile thisTile thisGame clearedRows
                           else thisTile
-                        | thisTile <- filter (\b -> (snd . tileLocale) b
-                                                      `notElem` fullRows) lainTiles]
-     , gameScore = gameScore thisGame + 50 * 2 ^ clearedRows
+                        | thisTile <- filter (\t -> (snd . tileLocale) t
+                                                      `notElem` fullRows) lainTiles],
+                gameScore = gameScore thisGame + 50 * 2 ^ clearedRows
               }
 
 --Generates next frame
 nextFrame :: Float -> Environment -> Environment
 --TODO: Check Game Over first, freeze or clear game environment
-nextFrame _ thisGame@(Environment { gameIsOver = True}) = thisGame {tileScape = [], 
+nextFrame _ thisGame@(Environment { gameIsOver = True }) = thisGame {tileScape = [], 
                                                                     gameScore = 0, 
                                                                     gameOver = color white (translate 0 0 (scale 0.125 0.125 (text "GAME OVER")))}
 
@@ -96,12 +96,14 @@ nextFrame _ thisGame = let thisStep = gameStep thisGame
 --Place and freeze current tetromino and get next one
 attemptClear' :: Environment -> Environment
 attemptClear' thisGame = let (t,ts) = nextTetromino $ tetrominoQueue thisGame
-                             in attemptClear
-                                thisGame { currentTetromino = t
-                                          , tileScape       = tiles (currentTetromino thisGame) ++ tileScape thisGame
-                                          , tetrominoQueue  = ts
-                                          , freezeTimer     = freezeDelay
-                                         }
+                             tempGame = attemptClear thisGame { currentTetromino = t,
+                                                                tileScape       = tiles (currentTetromino thisGame) ++ tileScape thisGame,
+                                                                tetrominoQueue  = ts,
+                                                                freezeTimer     = freezeDelay
+                                                              }
+                         in if not $ any (\t -> tileLocale t == spawnLocale) (tileScape tempGame) 
+                               then tempGame
+                            else thisGame { gameIsOver = True }
 
 --Handles keyboard inputs
 handleInput :: Event -> Environment -> Environment

@@ -52,16 +52,11 @@ paintTetromino thisGame t = fmap (paintTile thisGame) (tiles t)
 
 --Attempt to spawn at drop point
 spawnTetromino :: Environment -> Environment
-spawnTetromino thisGame = if not (gameIsOver thisGame)
-                                then let (t,ts) = nextTetromino $ tetrominoQueue thisGame
-                                        in if localeFree t thisGame
-                                                then thisGame { currentTetromino = t
-                                                                , tetrominoQueue = ts
-                                                                , tileScape      = tiles t ++ tileScape thisGame
-                                                                }
-                                        --Exit game if cannot TODO: Game Over 
-                                        else thisGame {gameIsOver = True}
-                                else thisGame
+spawnTetromino thisGame = let (t,ts) = nextTetromino $ tetrominoQueue thisGame
+                          in thisGame { currentTetromino = t,
+                                             tetrominoQueue = ts,
+                                             tileScape      = tiles t ++ tileScape thisGame
+                                           }
 
 --Determines if rotation is valid then performs it if so
 --Takes the tetromino and environment, returns the rotated tetromino
